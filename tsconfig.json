@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "jsx": "react-jsx",                    // ✅ enables new JSX transform
+    "moduleResolution": "bundler",         // ✅ required for Expo SDK 54 / Router 6
+    "customConditions": ["react-native"],  // ✅ safe now that 'bundler' is set
+    "strict": true,
+    "noEmit": true,
+    "types": ["react", "react-native", "expo-router"]
+  },
+  "extends": "expo/tsconfig.base"
+}

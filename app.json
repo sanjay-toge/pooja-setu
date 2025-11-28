@@ -1,0 +1,29 @@
+{
+  "expo": {
+    "name": "PoojaSetu",
+    "slug": "poojasetu",
+    "scheme": "poojasetu",
+    "orientation": "portrait",
+    "plugins": [
+      "expo-router"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#FFFFFF"
+      }
+    },
+    "web": {
+      "bundler": "metro"
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "ae7448a8-6d6c-41d5-9ad8-fb99776ccdf8"
+      }
+    }
+  }
+}
