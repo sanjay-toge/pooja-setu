@@ -1,32 +1,91 @@
-import { dummy } from '../data/dummy'
+const API_BASE_URL = 'http://192.168.1.6:3000/api';
 
-// Simulate network delay
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
+let authToken: string | null = null;
+
+export const setAuthToken = (token: string | null) => {
+    authToken = token;
+};
+
+const getHeaders = () => {
+    const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+    };
+    if (authToken) {
+        headers['Authorization'] = `Bearer ${authToken}`;
+    }
+    return headers;
+};
 
 export const api = {
-    fetchPoojas: async () => {
-        await delay(800)
-        return dummy.poojas
+    // Auth
+    login: async (method: 'phone' | 'google' | 'facebook', data: any) => {
+        const response = await fetch(`${API_BASE_URL}/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ method, ...data })
+        });
+        if (!response.ok) throw new Error('Login failed');
+        const result = await response.json();
+        setAuthToken(result.token);
+        return result;
     },
 
+    getMe: async () => {
+        const response = await fetch(`${API_BASE_URL}/auth/me`, {
+            headers: getHeaders()
+        });
+        if (!response.ok) throw new Error('Failed to get user');
+        return response.json();
+    },
+
+    updateProfile: async (data: any) => {
+        const response = await fetch(`${API_BASE_URL}/auth/profile`, {
+            method: 'PUT',
+            headers: getHeaders(),
+            body: JSON.stringify(data)
+        });
+        if (!response.ok) throw new Error('Failed to update profile');
+        return response.json();
+    },
+
+    // Temples
     fetchTemples: async () => {
-        await delay(800)
-        return dummy.temples
+        const response = await fetch(`${API_BASE_URL}/temples`);
+        if (!response.ok) throw new Error('Failed to fetch temples');
+        return response.json();
     },
 
-    fetchPoojaById: async (id: string) => {
-        await delay(500)
-        return dummy.poojas.find(p => p.id === id)
+    // Poojas
+    fetchPoojas: async () => {
+        const response = await fetch(`${API_BASE_URL}/poojas`);
+        if (!response.ok) throw new Error('Failed to fetch poojas');
+        return response.json();
     },
 
-    fetchTempleById: async (id: string) => {
-        await delay(500)
-        return dummy.temples.find(t => t.id === id)
+    // Bookings
+    createBooking: async (booking: any) => {
+        const response = await fetch(`${API_BASE_URL}/bookings`, {
+            method: 'POST',
+            headers: getHeaders(),
+            body: JSON.stringify(booking)
+        });
+        if (!response.ok) throw new Error('Failed to create booking');
+        return response.json();
     },
 
-    createBooking: async (bookingData: any) => {
-        await delay(1500)
-        const id = 'BKG' + Math.floor(Math.random() * 1e6).toString().padStart(6, '0')
-        return { ...bookingData, id, status: 'confirmed' }
+    getMyBookings: async () => {
+        const response = await fetch(`${API_BASE_URL}/bookings`, {
+            headers: getHeaders()
+        });
+        if (!response.ok) throw new Error('Failed to fetch bookings');
+        return response.json();
+    },
+
+    getBookingById: async (id: string) => {
+        const response = await fetch(`${API_BASE_URL}/bookings/${id}`, {
+            headers: getHeaders()
+        });
+        if (!response.ok) throw new Error('Failed to fetch booking');
+        return response.json();
     }
-}
+};

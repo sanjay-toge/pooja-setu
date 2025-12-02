@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import dayjs from 'dayjs'
-import { api } from './api/api'
+import { api, setAuthToken } from './api/api'
 
 type Booking = {
   id: string
@@ -74,15 +74,20 @@ export const useStore = create<State>((set, get) => ({
   getPoojaById: (id) => get().poojas.find(p => p.id === id),
   getTempleById: (id) => get().temples.find(t => t.id === id),
 
-  login: (method, data) => {
-    let user: User = { name: 'Guest User' }
-    if (method === 'google') user = { name: 'Sanjay Toge', email: 'sanjay@example.com', photo: 'https://i.pravatar.cc/150?img=11' }
-    if (method === 'facebook') user = { name: 'Sanjay Toge', email: 'sanjay.fb@example.com', photo: 'https://i.pravatar.cc/150?img=12' }
-    if (method === 'phone') user = { name: 'Mobile User', phone: data?.phone || '+91 98765 43210' }
-
-    set({ user, isAuthenticated: true })
+  login: async (method, data) => {
+    try {
+      const result = await api.login(method, data || {});
+      set({ user: result.user, isAuthenticated: true });
+    } catch (error) {
+      console.error('Login failed:', error);
+    }
   },
-  logout: () => set({ user: null, isAuthenticated: false }),
+
+  logout: () => {
+    setAuthToken(null);
+    set({ user: null, isAuthenticated: false });
+  },
+
   updateUser: (data) => set(s => ({ user: s.user ? { ...s.user, ...data } : null })),
 
   // Theme

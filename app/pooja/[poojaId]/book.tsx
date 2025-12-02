@@ -12,7 +12,8 @@ import DateTimePickerModal from 'react-native-modal-datetime-picker'
 export default function Book() {
   const { poojaId } = useLocalSearchParams()
   const theme = useTheme()
-  const p = dummy.poojas.find((x) => x.id === poojaId)
+  const { poojas } = useStore()
+  const p = poojas.find((x) => x.id === poojaId)
   const [picked, setPicked] = React.useState<any>(null)
   const [date, setDate] = React.useState(new Date())
   const [showPicker, setShowPicker] = React.useState(false)
@@ -23,32 +24,74 @@ export default function Book() {
   const { createBooking } = useStore()
 
   if (!p) return null
-  const slots = dummy.schedules[p.id] || []
+
+  // Generate time slots from current time to end of day
+  const generateTimeSlots = () => {
+    const slots = [];
+    const now = dayjs();
+    const isToday = dayjs(date).isSame(now, 'day');
+
+    // Start from current hour if today, otherwise from 6 AM
+    let startHour = isToday ? now.hour() + 1 : 6;
+    const endHour = 20; // 8 PM
+
+    for (let hour = startHour; hour <= endHour; hour++) {
+      const timeStart = `${hour.toString().padStart(2, '0')}:00`;
+      const timeEnd = `${(hour + 1).toString().padStart(2, '0')}:00`;
+      slots.push({
+        id: timeStart,
+        start: timeStart,
+        end: timeEnd,
+        remaining: 5 // Available spots
+      });
+    }
+
+    return slots;
+  };
+
+  const slots = generateTimeSlots();
 
   const toggleAdd = (id: string) =>
     setAddons((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]))
 
   const total =
     p.basePriceINR +
-    p.addOns.filter((a) => addons.includes(a.id)).reduce((s, a) => s + a.priceINR, 0)
+    p.addOns.filter((a: any) => addons.includes(a.id)).reduce((s: any, a: any) => s + a.priceINR, 0)
 
-  const confirm = () => {
-    if (!picked) return
-    const formattedDate = dayjs(date).format('YYYY-MM-DD')
-    const id = createBooking({
-      poojaId: p.id,
-      templeId: p.templeId,
-      date: formattedDate,
-      slotId: picked.id,
-      addOnIds: addons,
-      amountINR: total,
-      inputs: {
-        gotra: gotra || undefined,
-        nakshatra: nak || undefined,
-        intentions: intent,
-      },
-    })
-    router.replace(`/payment-success/${id}`)
+  const confirm = async () => {
+    if (!picked) {
+      alert('Please select a time slot');
+      return;
+    }
+
+    // Check if user is logged in
+    const { isAuthenticated, user } = useStore.getState();
+    if (!isAuthenticated || !user) {
+      alert('Please login first to book a pooja');
+      router.push('/login');
+      return;
+    }
+
+    try {
+      const formattedDate = dayjs(date).format('YYYY-MM-DD')
+      const id = await createBooking({
+        poojaId: p.id,
+        templeId: p.templeId,
+        date: formattedDate,
+        slotId: picked.id,
+        addOnIds: addons,
+        amountINR: total,
+        inputs: {
+          gotra: gotra || undefined,
+          nakshatra: nak || undefined,
+          intentions: intent,
+        },
+      })
+      router.replace(`/payment-success/${id}`)
+    } catch (error) {
+      console.error('Booking error:', error);
+      alert('Failed to create booking. Please try again.');
+    }
   }
 
   const inputStyle = {

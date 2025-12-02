@@ -4,12 +4,13 @@ import { View, Text, ScrollView } from 'react-native'
 import { useLocalSearchParams, router } from 'expo-router'
 import { useTheme } from '../../../src/theme'
 import Button from '../../../src/components/Button'
-import { dummy } from '../../../src/data/dummy'
+import { useStore } from '../../../src/store'
 
 export default function PoojaDetail() {
   const { poojaId } = useLocalSearchParams()
   const theme = useTheme()
-  const p = dummy.poojas.find(x => x.id === poojaId)
+  const { poojas } = useStore()
+  const p = poojas.find(x => x.id === poojaId)
 
   if (!p) return <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.colors.background }}><Text style={{ color: theme.colors.text }}>Pooja not found</Text></View>
 
