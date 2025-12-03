@@ -5,7 +5,8 @@
     "scheme": "poojasetu",
     "orientation": "portrait",
     "plugins": [
-      "expo-router"
+      "expo-router",
+      "expo-font"
     ],
     "ios": {
       "supportsTablet": true
@@ -23,7 +24,7 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "ae7448a8-6d6c-41d5-9ad8-fb99776ccdf8"
+        "projectId": "40f32ac7-51b8-4929-986c-1371a49a2eaa"
       }
     }
   }

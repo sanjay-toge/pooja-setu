@@ -1,4 +1,6 @@
-const API_BASE_URL = 'http://192.168.1.6:3000/api';
+// const API_BASE_URL = 'http://192.168.1.6:3000/api';
+const API_BASE_URL = 'https://pooja-setu-api-cvfec3etbpfegmau.canadacentral-01.azurewebsites.net/api';
+
 
 let authToken: string | null = null;
 

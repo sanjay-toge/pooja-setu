@@ -36,7 +36,7 @@ type State = {
   // Auth
   user: User | null
   isAuthenticated: boolean
-  login: (method: 'google' | 'facebook' | 'phone', data?: any) => void
+  login: (method: 'google' | 'facebook' | 'phone', data?: any) => Promise<void>
   logout: () => void
   updateUser: (data: Partial<User>) => void
 
@@ -75,12 +75,8 @@ export const useStore = create<State>((set, get) => ({
   getTempleById: (id) => get().temples.find(t => t.id === id),
 
   login: async (method, data) => {
-    try {
-      const result = await api.login(method, data || {});
-      set({ user: result.user, isAuthenticated: true });
-    } catch (error) {
-      console.error('Login failed:', error);
-    }
+    const result = await api.login(method, data || {});
+    set({ user: result.user, isAuthenticated: true });
   },
 
   logout: () => {

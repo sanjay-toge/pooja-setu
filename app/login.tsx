@@ -19,12 +19,15 @@ export default function LoginScreen() {
         }
 
         setLoading(true)
-        // Simulate API call
-        setTimeout(() => {
-            login(method, { phone })
-            setLoading(false)
+        try {
+            await login(method, { phone: `+91${phone}`, name: 'User' })
             router.replace('/(tabs)')
-        }, 1500)
+        } catch (error) {
+            Alert.alert('Login Failed', 'Unable to login. Please try again.')
+            console.error('Login error:', error)
+        } finally {
+            setLoading(false)
+        }
     }
 
     const styles = getStyles(theme)
