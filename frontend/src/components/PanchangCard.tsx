@@ -247,7 +247,7 @@ const getStyles = (theme: any) =>
     StyleSheet.create({
         cardContainer: {
             marginBottom: 16,
-            height: 450,
+            height: 380,
         },
         card: {
             position: 'absolute',
