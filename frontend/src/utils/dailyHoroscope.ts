@@ -2,6 +2,7 @@ import dayjs from 'dayjs';
 
 export type DailyHoroscope = {
     date: string;
+    summary: string;
     health: {
         rating: number;
         description: string;
@@ -77,8 +78,20 @@ export const getDailyHoroscope = (): DailyHoroscope => {
     // Overall is average of the three, rounded
     const overallRating = Math.round((healthRating + loveRating + workRating) / 3);
 
+    // Generate summary based on overall rating
+    const summaries = {
+        5: 'The stars are perfectly aligned! Today brings excellent opportunities in all aspects of life. Your energy is high, relationships flourish, and work progresses smoothly. Embrace this blessed day with confidence and gratitude.',
+        4: 'A positive and productive day ahead! While there may be minor challenges, your overall outlook is bright. Focus on your strengths and maintain good communication with loved ones. Success is within reach.',
+        3: 'A balanced day with mixed energies. Stay flexible and adaptable as you navigate through ups and downs. Focus on what you can control and maintain patience. Small progress is still progress.',
+        2: 'A day that calls for extra patience and self-care. While challenges may arise, they are temporary. Take time to rest, avoid major decisions, and lean on your support system. Better days are coming.',
+        1: 'Today requires careful navigation and mindfulness. Prioritize self-care and avoid unnecessary risks. This is a time for reflection and patience rather than action. Remember, every challenge brings growth.'
+    };
+
+    const summary = summaries[overallRating as keyof typeof summaries];
+
     return {
         date: dayjs().format('dddd, DD MMMM YYYY'),
+        summary,
         health: {
             rating: healthRating,
             description: getDescription(healthRating, 'health')

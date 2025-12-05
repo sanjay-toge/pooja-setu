@@ -109,35 +109,36 @@ export default function PanchangCard({ panchang }: Props) {
 
                 <Text style={styles.date}>{horoscope.date}</Text>
 
-                <View style={styles.horoscopeSection}>
-                    <RatingItem
+                {/* Summary Section */}
+                <View style={styles.summarySection}>
+                    <Text style={styles.summaryText}>{horoscope.summary}</Text>
+                </View>
+
+                {/* Compact Star Ratings Grid */}
+                <View style={styles.ratingsGrid}>
+                    <CompactRating
                         icon="fitness"
                         label="Health"
                         rating={horoscope.health.rating}
-                        description={horoscope.health.description}
                         theme={theme}
                     />
-                    <RatingItem
+                    <CompactRating
                         icon="heart"
-                        label="Love & Relationships"
+                        label="Love"
                         rating={horoscope.love.rating}
-                        description={horoscope.love.description}
                         theme={theme}
                     />
-                    <RatingItem
+                    <CompactRating
                         icon="briefcase"
-                        label="Work & Business"
+                        label="Work"
                         rating={horoscope.work.rating}
-                        description={horoscope.work.description}
                         theme={theme}
                     />
-                    <RatingItem
+                    <CompactRating
                         icon="sunny"
-                        label="Overall Day"
+                        label="Overall"
                         rating={horoscope.overall.rating}
-                        description={horoscope.overall.description}
                         theme={theme}
-                        isOverall
                     />
                 </View>
 
@@ -188,68 +189,56 @@ function InfoItem({ icon, label, value, theme }: InfoItemProps) {
     );
 }
 
-type RatingItemProps = {
+type CompactRatingProps = {
     icon: keyof typeof Ionicons.glyphMap;
     label: string;
     rating: number;
-    description: string;
     theme: any;
-    isOverall?: boolean;
 };
 
-function RatingItem({ icon, label, rating, description, theme, isOverall }: RatingItemProps) {
-    const ratingStyles = StyleSheet.create({
+function CompactRating({ icon, label, rating, theme }: CompactRatingProps) {
+    const compactStyles = StyleSheet.create({
         container: {
-            marginBottom: 16,
-            padding: 14,
-            borderRadius: 12,
-            backgroundColor: isOverall
-                ? (theme.mode === 'dark' ? '#2a2a3a' : '#f0f0ff')
-                : (theme.mode === 'dark' ? '#2a2a2a' : '#f5f5f5'),
-            borderWidth: isOverall ? 1 : 0,
-            borderColor: theme.colors.primary + '40',
+            width: '48%',
+            marginBottom: 12,
+            padding: 12,
+            borderRadius: 10,
+            backgroundColor: theme.mode === 'dark' ? '#2a2a2a' : '#f5f5f5',
+            alignItems: 'center' as const,
         },
-        headerRow: {
+        iconRow: {
             flexDirection: 'row' as const,
             alignItems: 'center' as const,
             marginBottom: 8,
         },
         label: {
-            fontSize: 15,
-            fontWeight: '700' as const,
+            fontSize: 13,
+            fontWeight: '600' as const,
             color: theme.colors.text,
-            marginLeft: 8,
-            flex: 1,
+            marginLeft: 6,
         },
         stars: {
             flexDirection: 'row' as const,
-            gap: 4,
+            gap: 3,
         },
-        description: {
-            fontSize: 13,
-            color: theme.colors.muted,
-            marginTop: 4,
-            lineHeight: 18,
-        }
     });
 
     return (
-        <View style={ratingStyles.container}>
-            <View style={ratingStyles.headerRow}>
-                <Ionicons name={icon} size={20} color={theme.colors.primary} />
-                <Text style={ratingStyles.label}>{label}</Text>
-                <View style={ratingStyles.stars}>
-                    {[1, 2, 3, 4, 5].map((star) => (
-                        <Ionicons
-                            key={star}
-                            name={star <= rating ? 'star' : 'star-outline'}
-                            size={16}
-                            color={star <= rating ? '#FFD700' : theme.colors.muted}
-                        />
-                    ))}
-                </View>
+        <View style={compactStyles.container}>
+            <View style={compactStyles.iconRow}>
+                <Ionicons name={icon} size={18} color={theme.colors.primary} />
+                <Text style={compactStyles.label}>{label}</Text>
             </View>
-            <Text style={ratingStyles.description}>{description}</Text>
+            <View style={compactStyles.stars}>
+                {[1, 2, 3, 4, 5].map((star) => (
+                    <Ionicons
+                        key={star}
+                        name={star <= rating ? 'star' : 'star-outline'}
+                        size={14}
+                        color={star <= rating ? '#FFD700' : theme.colors.muted}
+                    />
+                ))}
+            </View>
         </View>
     );
 }
@@ -348,6 +337,25 @@ const getStyles = (theme: any) =>
             fontSize: 11,
             color: theme.colors.muted,
             fontStyle: 'italic',
+        },
+        summarySection: {
+            padding: 16,
+            backgroundColor: theme.mode === 'dark' ? '#2a2a3a' : '#f0f0ff',
+            borderRadius: 12,
+            marginBottom: 16,
+            borderWidth: 1,
+            borderColor: theme.colors.primary + '20',
+        },
+        summaryText: {
+            fontSize: 14,
+            lineHeight: 22,
+            color: theme.colors.text,
+            textAlign: 'center',
+        },
+        ratingsGrid: {
+            flexDirection: 'row',
+            flexWrap: 'wrap',
+            justifyContent: 'space-between',
         },
         horoscopeSection: {
             flex: 1,
