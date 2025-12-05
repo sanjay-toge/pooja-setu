@@ -1,5 +1,5 @@
-// const API_BASE_URL = 'http://192.168.1.7:3000/api';
-const API_BASE_URL = 'http://172.20.10.2:3000/api';
+const API_BASE_URL = 'http://192.168.1.7:3000/api';
+// const API_BASE_URL = 'http://172.20.10.2:3000/api';
 // const API_BASE_URL = 'https://pooja-setu-api-cvfec3etbpfegmau.canadacentral-01.azurewebsites.net/api';
 
 
