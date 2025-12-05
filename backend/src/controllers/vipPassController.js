@@ -70,12 +70,27 @@ exports.getMyVipPasses = async (req, res) => {
 
         const passes = await VipPass.find(query).sort({ date: -1, timeSlot: 1 });
 
-        // Update expired passes
+        // Update expired passes - check if time slot has ended
         const now = new Date();
         for (const pass of passes) {
-            if (pass.status === 'active' && new Date(pass.date) < now) {
-                pass.status = 'expired';
-                await pass.save();
+            if (pass.status === 'active') {
+                // Get slot end time
+                const slotEndTimes = {
+                    'morning': 9,    // 6 AM - 9 AM
+                    'afternoon': 15, // 12 PM - 3 PM
+                    'evening': 20    // 5 PM - 8 PM
+                };
+
+                const passDate = new Date(pass.date + 'T00:00:00');
+                const slotEndHour = slotEndTimes[pass.timeSlot] || 9;
+                const slotEndTime = new Date(passDate);
+                slotEndTime.setHours(slotEndHour, 0, 0, 0);
+
+                // Only mark as expired if the time slot has actually ended
+                if (now > slotEndTime) {
+                    pass.status = 'expired';
+                    await pass.save();
+                }
             }
         }
 

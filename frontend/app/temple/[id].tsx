@@ -17,7 +17,7 @@ export default function TempleDetail() {
   const [purchaseDate, setPurchaseDate] = useState(dayjs().add(1, 'day').format('YYYY-MM-DD'));
   const [isLoading, setIsLoading] = useState(false);
 
-  const minDate = dayjs().add(1, 'day').format('YYYY-MM-DD');
+  const minDate = dayjs().add(0, 'day').format('YYYY-MM-DD');
   const maxDate = dayjs().add(3, 'month').format('YYYY-MM-DD');
 
   const temple = temples.find((x: any) => x.id === id);
