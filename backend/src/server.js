@@ -7,6 +7,7 @@ const authRoutes = require('./routes/auth');
 const templeRoutes = require('./routes/temples');
 const poojaRoutes = require('./routes/poojas');
 const bookingRoutes = require('./routes/bookings');
+const vipPassRoutes = require('./routes/vipPasses');
 
 const app = express();
 
@@ -22,6 +23,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/temples', templeRoutes);
 app.use('/api/poojas', poojaRoutes);
 app.use('/api/bookings', bookingRoutes);
+app.use('/api/vip-passes', vipPassRoutes);
 
 // Health check
 app.get('/health', (req, res) => {

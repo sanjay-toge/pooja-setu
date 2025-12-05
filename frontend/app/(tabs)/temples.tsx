@@ -1,16 +1,15 @@
 
 import React from 'react'
 import { Text, ScrollView } from 'react-native'
-import { dummy } from '../../src/data/dummy'
 import Card from '../../src/components/Card'
 import { useTheme } from '../../src/theme'
 import { useStore } from '../../src/store'
 import { router } from 'expo-router'
 
 export default function Temples() {
-  const { filters } = useStore()
+  const { filters, temples } = useStore()
   const theme = useTheme()
-  const list = dummy.temples.filter(t => (!filters.city || t.city.toLowerCase().includes(String(filters.city).toLowerCase())) && (!filters.deity || t.deities.includes(String(filters.deity))))
+  const list = temples.filter(t => (!filters.city || t.city.toLowerCase().includes(String(filters.city).toLowerCase())) && (!filters.deity || t.deities.includes(String(filters.deity))))
 
   return (
     <ScrollView style={{ padding: 16, backgroundColor: theme.colors.background }}>

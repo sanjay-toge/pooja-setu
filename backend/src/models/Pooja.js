@@ -7,6 +7,10 @@ const poojaSchema = new mongoose.Schema({
     basePriceINR: { type: Number, required: true },
     durationMinutes: { type: Number, required: true },
     type: String,
+    description: { type: String, default: '' },
+    includedInTicket: [{ type: String }],
+    specialNotes: [{ type: String }],
+    termsAndConditions: [{ type: String }],
     addOns: [{
         id: String,
         name: String,

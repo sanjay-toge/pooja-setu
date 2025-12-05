@@ -41,11 +41,11 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="notifications"
+        name="vip"
         options={{
-          title: 'Alerts',
+          title: 'VIP',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="notifications" color={color} size={size} />
+            <Ionicons name="star" color={color} size={size} />
           ),
         }}
       />

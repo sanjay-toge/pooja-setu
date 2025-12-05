@@ -1,5 +1,5 @@
-// const API_BASE_URL = 'http://192.168.1.6:3000/api';
-const API_BASE_URL = 'https://pooja-setu-api-cvfec3etbpfegmau.canadacentral-01.azurewebsites.net/api';
+const API_BASE_URL = 'http://172.20.10.2:3000/api';
+// const API_BASE_URL = 'https://pooja-setu-api-cvfec3etbpfegmau.canadacentral-01.azurewebsites.net/api';
 
 
 let authToken: string | null = null;
@@ -88,6 +88,46 @@ export const api = {
             headers: getHeaders()
         });
         if (!response.ok) throw new Error('Failed to fetch booking');
+        return response.json();
+    },
+
+    // VIP Passes
+    purchaseVipPass: async (data: any) => {
+        const response = await fetch(`${API_BASE_URL}/vip-passes`, {
+            method: 'POST',
+            headers: getHeaders(),
+            body: JSON.stringify(data)
+        });
+        if (!response.ok) throw new Error('Failed to purchase VIP pass');
+        return response.json();
+    },
+
+    getMyVipPasses: async (status?: string) => {
+        const url = status
+            ? `${API_BASE_URL}/vip-passes?status=${status}`
+            : `${API_BASE_URL}/vip-passes`;
+        const response = await fetch(url, {
+            headers: getHeaders()
+        });
+        if (!response.ok) throw new Error('Failed to fetch VIP passes');
+        return response.json();
+    },
+
+    getVipPassById: async (id: string) => {
+        const response = await fetch(`${API_BASE_URL}/vip-passes/${id}`, {
+            headers: getHeaders()
+        });
+        if (!response.ok) throw new Error('Failed to fetch VIP pass');
+        return response.json();
+    },
+
+    validateVipPass: async (qrCodeData: string) => {
+        const response = await fetch(`${API_BASE_URL}/vip-passes/validate`, {
+            method: 'POST',
+            headers: getHeaders(),
+            body: JSON.stringify({ qrCodeData })
+        });
+        if (!response.ok) throw new Error('Failed to validate VIP pass');
         return response.json();
     }
 };
