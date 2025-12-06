@@ -18,7 +18,7 @@ jobs:
       - name: Set up Node.js version
         uses: actions/setup-node@v3
         with:
-          node-version: '22-lts'
+          node-version: '22.x'
 
       - name: npm install, build
         working-directory: ./backend
