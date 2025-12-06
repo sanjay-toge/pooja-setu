@@ -11,7 +11,7 @@ import { Calendar } from 'react-native-calendars';
 export default function TempleDetail() {
   const { id } = useLocalSearchParams();
   const theme = useTheme();
-  const { temples, poojas } = useStore();
+  const { temples, poojas, user } = useStore();
   const [vipModalVisible, setVipModalVisible] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState<'earlyMorning' | 'morning' | 'afternoon' | 'lateAfternoon' | 'evening' | 'night' | null>(null);
   const [purchaseDate, setPurchaseDate] = useState(dayjs().add(1, 'day').format('YYYY-MM-DD'));
@@ -30,6 +30,27 @@ export default function TempleDetail() {
       </View>
     );
   }
+
+  const handleGetVipPass = () => {
+    if (!user) {
+      Alert.alert(
+        'Login Required',
+        'Please login to purchase VIP pass',
+        [
+          {
+            text: 'Cancel',
+            style: 'cancel'
+          },
+          {
+            text: 'Login',
+            onPress: () => router.push('/login')
+          }
+        ]
+      );
+      return;
+    }
+    setVipModalVisible(true);
+  };
 
   const handleVipPurchase = async () => {
     if (!selectedSlot) {
@@ -164,7 +185,7 @@ export default function TempleDetail() {
               )}
             </View>
 
-            <Pressable style={styles.vipButton} onPress={() => setVipModalVisible(true)}>
+            <Pressable style={styles.vipButton} onPress={handleGetVipPass}>
               <Ionicons name="ticket" size={20} color="#fff" />
               <Text style={styles.vipButtonText}>Get VIP Pass</Text>
             </Pressable>

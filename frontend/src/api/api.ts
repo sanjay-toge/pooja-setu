@@ -1,12 +1,37 @@
-const API_BASE_URL = 'http://192.168.1.7:3000/api';
+// const API_BASE_URL = 'http://192.168.1.9:3000/api';
 // const API_BASE_URL = 'http://172.20.10.2:3000/api';
-// const API_BASE_URL = 'https://pooja-setu-api-cvfec3etbpfegmau.canadacentral-01.azurewebsites.net/api';
+const API_BASE_URL = 'https://pooja-setu-api-cvfec3etbpfegmau.canadacentral-01.azurewebsites.net/api';
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 let authToken: string | null = null;
 
-export const setAuthToken = (token: string | null) => {
+// Load token from storage on initialization
+(async () => {
+    try {
+        const savedToken = await AsyncStorage.getItem('authToken');
+        if (savedToken) {
+            authToken = savedToken;
+            console.log('Auth token loaded from storage');
+        }
+    } catch (error) {
+        console.error('Error loading auth token:', error);
+    }
+})();
+
+export const setAuthToken = async (token: string | null) => {
     authToken = token;
+    try {
+        if (token) {
+            await AsyncStorage.setItem('authToken', token);
+            console.log('Auth token saved to storage');
+        } else {
+            await AsyncStorage.removeItem('authToken');
+            console.log('Auth token removed from storage');
+        }
+    } catch (error) {
+        console.error('Error saving auth token:', error);
+    }
 };
 
 const getHeaders = () => {
@@ -94,12 +119,27 @@ export const api = {
 
     // VIP Passes
     purchaseVipPass: async (data: any) => {
+        console.log('Auth token being sent:', authToken ? 'Yes' : 'No');
         const response = await fetch(`${API_BASE_URL}/vip-passes`, {
             method: 'POST',
             headers: getHeaders(),
             body: JSON.stringify(data)
         });
-        if (!response.ok) throw new Error('Failed to purchase VIP pass');
+        if (!response.ok) {
+            let errorMessage = `Failed to purchase VIP pass (Status: ${response.status})`;
+            try {
+                const error = await response.clone().json();
+                errorMessage = error.message || error.error || errorMessage;
+            } catch (e) {
+                try {
+                    const text = await response.text();
+                    errorMessage = text || errorMessage;
+                } catch (e2) {
+                    // Keep the default error message
+                }
+            }
+            throw new Error(errorMessage);
+        }
         return response.json();
     },
 
@@ -110,7 +150,21 @@ export const api = {
         const response = await fetch(url, {
             headers: getHeaders()
         });
-        if (!response.ok) throw new Error('Failed to fetch VIP passes');
+        if (!response.ok) {
+            let errorMessage = `Failed to fetch VIP passes (Status: ${response.status})`;
+            try {
+                const error = await response.clone().json();
+                errorMessage = error.message || error.error || errorMessage;
+            } catch (e) {
+                try {
+                    const text = await response.text();
+                    errorMessage = text || errorMessage;
+                } catch (e2) {
+                    // Keep the default error message
+                }
+            }
+            throw new Error(errorMessage);
+        }
         return response.json();
     },
 

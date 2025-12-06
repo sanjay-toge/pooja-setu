@@ -79,8 +79,8 @@ export const useStore = create<State>((set, get) => ({
     set({ user: result.user, isAuthenticated: true });
   },
 
-  logout: () => {
-    setAuthToken(null);
+  logout: async () => {
+    await setAuthToken(null);
     set({ user: null, isAuthenticated: false });
   },
 
