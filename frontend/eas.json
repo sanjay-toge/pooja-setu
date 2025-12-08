@@ -4,6 +4,12 @@
     "appVersionSource": "remote"
   },
   "build": {
+    "internal_testing_profile": {
+      "android": {
+        "buildType": "app-bundle",
+        "distribution": "internal"
+      }
+    },
     "development": {
       "developmentClient": true,
       "distribution": "internal"

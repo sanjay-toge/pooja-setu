@@ -10,6 +10,14 @@ type Props = {
     onPress?: () => void;
 };
 
+// Helper function to format time from HH:MM to 12-hour format
+const formatTime = (time: string) => {
+    const [hours, minutes] = time.split(':').map(Number);
+    const period = hours >= 12 ? 'PM' : 'AM';
+    const displayHour = hours % 12 || 12;
+    return `${displayHour}:${minutes.toString().padStart(2, '0')} ${period}`;
+};
+
 export default function VipPassCard({ pass, onPress }: Props) {
     const theme = useTheme();
     const [isQRVisible, setIsQRVisible] = useState(false);
@@ -24,14 +32,18 @@ export default function VipPassCard({ pass, onPress }: Props) {
     const checkQRVisibility = () => {
         const now = dayjs();
         const passDate = dayjs(pass.date);
-        const slotTime = getSlotStartTime(pass.timeSlot);
-        const passDateTime = passDate.set('hour', slotTime.hour).set('minute', slotTime.minute);
 
-        // Show QR 1 hour before slot starts
-        const oneHourBefore = passDateTime.subtract(1, 'hour');
-        const slotEnd = passDateTime.add(3, 'hour'); // 3-hour slots
+        // Parse start and end times
+        const [startHour, startMinute] = pass.startTime.split(':').map(Number);
+        const [endHour, endMinute] = pass.endTime.split(':').map(Number);
 
-        const visible = now.isAfter(oneHourBefore) && now.isBefore(slotEnd);
+        const passStartTime = passDate.set('hour', startHour).set('minute', startMinute);
+        const passEndTime = passDate.set('hour', endHour).set('minute', endMinute);
+
+        // Show QR 1 hour before pass starts until it ends
+        const oneHourBefore = passStartTime.subtract(1, 'hour');
+
+        const visible = now.isAfter(oneHourBefore) && now.isBefore(passEndTime);
         setIsQRVisible(visible);
 
         if (!visible && now.isBefore(oneHourBefore)) {
@@ -42,14 +54,7 @@ export default function VipPassCard({ pass, onPress }: Props) {
         }
     };
 
-    const getSlotStartTime = (slot: string) => {
-        const times = {
-            morning: { hour: 6, minute: 0 },
-            afternoon: { hour: 12, minute: 0 },
-            evening: { hour: 17, minute: 0 }
-        };
-        return times[slot as keyof typeof times] || times.morning;
-    };
+
 
     const getStatusColor = () => {
         if (pass.status === 'used') return '#4CAF50';
@@ -92,11 +97,13 @@ export default function VipPassCard({ pass, onPress }: Props) {
                 </View>
                 <View style={styles.detailRow}>
                     <Ionicons name="time" size={16} color={theme.colors.muted} />
-                    <Text style={styles.detailText}>{pass.timeRange}</Text>
+                    <Text style={styles.detailText}>
+                        {formatTime(pass.startTime)} - {formatTime(pass.endTime)}
+                    </Text>
                 </View>
                 <View style={styles.detailRow}>
-                    <Ionicons name="person" size={16} color={theme.colors.muted} />
-                    <Text style={styles.detailText}>VIP {pass.timeSlot} Slot</Text>
+                    <Ionicons name="hourglass" size={16} color={theme.colors.muted} />
+                    <Text style={styles.detailText}>Valid for 1 hour</Text>
                 </View>
             </View>
 

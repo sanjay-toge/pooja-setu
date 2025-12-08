@@ -28,10 +28,11 @@ const seedData = async () => {
                 deities: ['Ganesha'],
                 vipPricing: {
                     enabled: true,
-                    morningSlot: { priceINR: 499, timeRange: '6:00 AM - 9:00 AM' },
-                    afternoonSlot: { priceINR: 399, timeRange: '12:00 PM - 3:00 PM' },
-                    eveningSlot: { priceINR: 599, timeRange: '5:00 PM - 8:00 PM' }
-                }
+                    priceINR: 399
+                },
+                openingTime: '06:00',
+                closingTime: '20:00',
+                liveDarshanUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
             },
             {
                 id: 't2',
@@ -43,10 +44,11 @@ const seedData = async () => {
                 deities: ['Lakshmi'],
                 vipPricing: {
                     enabled: true,
-                    morningSlot: { priceINR: 599, timeRange: '6:00 AM - 9:00 AM' },
-                    afternoonSlot: { priceINR: 499, timeRange: '12:00 PM - 3:00 PM' },
-                    eveningSlot: { priceINR: 699, timeRange: '5:00 PM - 8:00 PM' }
-                }
+                    priceINR: 499
+                },
+                openingTime: '05:30',
+                closingTime: '21:00',
+                liveDarshanUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
             },
             {
                 id: 't3',
@@ -58,10 +60,11 @@ const seedData = async () => {
                 deities: ['Ganesha'],
                 vipPricing: {
                     enabled: true,
-                    morningSlot: { priceINR: 799, timeRange: '6:00 AM - 9:00 AM' },
-                    afternoonSlot: { priceINR: 649, timeRange: '12:00 PM - 3:00 PM' },
-                    eveningSlot: { priceINR: 899, timeRange: '5:00 PM - 8:00 PM' }
-                }
+                    priceINR: 649
+                },
+                openingTime: '05:00',
+                closingTime: '22:00',
+                liveDarshanUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
             }
         ];
 

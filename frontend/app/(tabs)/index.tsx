@@ -72,11 +72,12 @@ export default function Home() {
         </Pressable>
       </View>
 
+      {/* Daily Horoscope (only if user has DOB) */}
+      {horoscopeData && <HoroscopeCard horoscope={horoscopeData} />}
+
       {/* Daily Panchang */}
       <PanchangCard panchang={panchangData} />
 
-      {/* Daily Horoscope (only if user has DOB) */}
-      {horoscopeData && <HoroscopeCard horoscope={horoscopeData} />}
 
       {/* VIP Access Promotion */}
       <Pressable

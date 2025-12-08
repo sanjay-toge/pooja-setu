@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, Image, StyleSheet, Pressable, Modal, Alert } from 'react-native';
+import { View, Text, ScrollView, Image, StyleSheet, Pressable, Modal, Alert, Linking } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { useStore } from '../../src/store';
 import { useTheme } from '../../src/theme';
@@ -13,9 +13,45 @@ export default function TempleDetail() {
   const theme = useTheme();
   const { temples, poojas, user } = useStore();
   const [vipModalVisible, setVipModalVisible] = useState(false);
-  const [selectedSlot, setSelectedSlot] = useState<'earlyMorning' | 'morning' | 'afternoon' | 'lateAfternoon' | 'evening' | 'night' | null>(null);
+  const [selectedTime, setSelectedTime] = useState<string>('');
   const [purchaseDate, setPurchaseDate] = useState(dayjs().add(1, 'day').format('YYYY-MM-DD'));
   const [isLoading, setIsLoading] = useState(false);
+  const [hoursExpanded, setHoursExpanded] = useState(false);
+
+  // Generate available time slots from temple opening/closing hours
+  const generateTimeSlots = (openingTime: string, closingTime: string) => {
+    const slots = [];
+    const [openHour] = openingTime.split(':').map(Number);
+    const [closeHour] = closingTime.split(':').map(Number);
+
+    for (let hour = openHour; hour < closeHour; hour++) {
+      slots.push({
+        value: `${hour.toString().padStart(2, '0')}:00`,
+        label: `${hour % 12 || 12}:00 ${hour < 12 ? 'AM' : 'PM'}`
+      });
+    }
+    return slots;
+  };
+
+  // Helper to format time from HH:MM to 12-hour format
+  const formatTempleTime = (time: string) => {
+    const [hours, minutes] = time.split(':').map(Number);
+    const period = hours >= 12 ? 'PM' : 'AM';
+    const displayHour = hours % 12 || 12;
+    return `${displayHour}:${minutes.toString().padStart(2, '0')} ${period}`;
+  };
+
+  // Check if temple is currently open
+  const isTempleOpen = () => {
+    const now = dayjs();
+    const [openHour, openMin] = temple.openingTime.split(':').map(Number);
+    const [closeHour, closeMin] = temple.closingTime.split(':').map(Number);
+
+    const openTime = now.set('hour', openHour).set('minute', openMin);
+    const closeTime = now.set('hour', closeHour).set('minute', closeMin);
+
+    return now.isAfter(openTime) && now.isBefore(closeTime);
+  };
 
   const minDate = dayjs().add(0, 'day').format('YYYY-MM-DD');
   const maxDate = dayjs().add(3, 'month').format('YYYY-MM-DD');
@@ -53,32 +89,34 @@ export default function TempleDetail() {
   };
 
   const handleVipPurchase = async () => {
-    if (!selectedSlot) {
-      Alert.alert('Select Time Slot', 'Please select a time slot for your VIP pass');
+    if (!selectedTime) {
+      Alert.alert('Select Time', 'Please select a time for your VIP pass');
       return;
     }
 
     try {
       setIsLoading(true);
-      const slotData = temple.vipPricing[`${selectedSlot}Slot`];
       const formattedDate = purchaseDate;
+
+      // Calculate end time for display
+      const [hours] = selectedTime.split(':').map(Number);
+      const endHour = (hours + 1) % 24;
+      const endTime = `${endHour.toString().padStart(2, '0')}:00`;
 
       console.log('Purchasing VIP pass:', {
         templeId: temple.id,
         templeName: temple.name,
         date: formattedDate,
-        timeSlot: selectedSlot,
-        timeRange: slotData.timeRange,
-        amountPaidINR: slotData.priceINR
+        startTime: selectedTime,
+        amountPaidINR: temple.vipPricing.priceINR
       });
 
       await api.purchaseVipPass({
         templeId: temple.id,
         templeName: temple.name,
         date: formattedDate,
-        timeSlot: selectedSlot,
-        timeRange: slotData.timeRange,
-        amountPaidINR: slotData.priceINR
+        startTime: selectedTime,
+        amountPaidINR: temple.vipPricing.priceINR
       });
 
       Alert.alert(
@@ -130,6 +168,7 @@ export default function TempleDetail() {
         </View>
         <Text style={styles.description}>{temple.description}</Text>
 
+
         {/* Deities */}
         <View style={styles.deitiesContainer}>
           {temple.deities?.map((deity: string, index: number) => (
@@ -138,6 +177,83 @@ export default function TempleDetail() {
             </View>
           ))}
         </View>
+
+        {/* Temple Hours - Expandable */}
+        <Pressable
+          style={styles.hoursSection}
+          onPress={() => setHoursExpanded(!hoursExpanded)}
+        >
+          <View style={styles.hoursHeader}>
+            <View style={styles.hoursHeaderLeft}>
+              <Ionicons name="time-outline" size={24} color={theme.colors.primary} />
+              <View style={{ marginLeft: 12 }}>
+                <Text style={styles.hoursTitle}>Temple Hours</Text>
+                <View style={styles.todayRow}>
+                  <Text style={styles.todayLabel}>Today ({dayjs().format('dddd')})</Text>
+                  <View style={[styles.statusBadge, { backgroundColor: isTempleOpen() ? '#4CAF50' : '#FF5252' }]}>
+                    <Text style={styles.statusText}>{isTempleOpen() ? 'OPEN' : 'CLOSED'}</Text>
+                  </View>
+                </View>
+                <Text style={styles.hoursTime}>
+                  {formatTempleTime(temple.openingTime)} - {formatTempleTime(temple.closingTime)}
+                </Text>
+              </View>
+            </View>
+            <Ionicons
+              name={hoursExpanded ? 'chevron-up' : 'chevron-down'}
+              size={24}
+              color={theme.colors.muted}
+            />
+          </View>
+
+          {hoursExpanded && (
+            <View style={styles.weeklyHours}>
+              <View style={styles.divider} />
+              {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day) => {
+                const isToday = dayjs().format('dddd') === day;
+                return (
+                  <View key={day} style={[styles.dayRow, isToday && styles.dayRowToday]}>
+                    <View style={styles.dayLeft}>
+                      {isToday && <Ionicons name="checkmark-circle" size={16} color={theme.colors.primary} />}
+                      <Text style={[styles.dayName, isToday && styles.dayNameToday]}>
+                        {day}
+                      </Text>
+                    </View>
+                    <Text style={[styles.dayTime, isToday && styles.dayTimeToday]}>
+                      {formatTempleTime(temple.openingTime)} - {formatTempleTime(temple.closingTime)}
+                    </Text>
+                  </View>
+                );
+              })}
+            </View>
+          )}
+        </Pressable>
+
+
+        {/* Live Darshan Section */}
+        {temple.liveDarshanUrl && (
+          <View style={styles.liveDarshanSection}>
+            <View style={styles.liveDarshanHeader}>
+              <View style={styles.liveDarshanHeaderLeft}>
+                <Ionicons name="videocam" size={24} color="#FF0000" />
+                <Text style={styles.liveDarshanTitle}>Live Darshan</Text>
+              </View>
+              <View style={styles.freeBadge}>
+                <Text style={styles.freeBadgeText}>FREE</Text>
+              </View>
+            </View>
+            <Text style={styles.liveDarshanSubtitle}>
+              Watch live temple darshan on YouTube
+            </Text>
+            <Pressable
+              style={styles.liveDarshanButton}
+              onPress={() => Linking.openURL(temple.liveDarshanUrl)}
+            >
+              <Ionicons name="play-circle" size={20} color="#fff" />
+              <Text style={styles.liveDarshanButtonText}>Watch Now</Text>
+            </Pressable>
+          </View>
+        )}
 
         {/* VIP Pass Section */}
         {temple.vipPricing?.enabled && (
@@ -152,37 +268,12 @@ export default function TempleDetail() {
               Skip the queue • Priority darshan • Dedicated entry
             </Text>
 
-            <View style={styles.vipSlots}>
-              {temple.vipPricing?.morningSlot?.priceINR > 0 && (
-                <View style={styles.vipSlot}>
-                  <Ionicons name="sunny" size={20} color="#FFA500" />
-                  <View style={{ flex: 1, marginLeft: 8 }}>
-                    <Text style={styles.vipSlotTitle}>Morning Darshan</Text>
-                    <Text style={styles.vipSlotTime}>{temple.vipPricing.morningSlot.timeRange}</Text>
-                  </View>
-                  <Text style={styles.vipSlotPrice}>₹{temple.vipPricing.morningSlot.priceINR}</Text>
-                </View>
-              )}
-              {temple.vipPricing?.afternoonSlot?.priceINR > 0 && (
-                <View style={styles.vipSlot}>
-                  <Ionicons name="partly-sunny" size={20} color="#FF6B6B" />
-                  <View style={{ flex: 1, marginLeft: 8 }}>
-                    <Text style={styles.vipSlotTitle}>Afternoon Darshan</Text>
-                    <Text style={styles.vipSlotTime}>{temple.vipPricing.afternoonSlot.timeRange}</Text>
-                  </View>
-                  <Text style={styles.vipSlotPrice}>₹{temple.vipPricing.afternoonSlot.priceINR}</Text>
-                </View>
-              )}
-              {temple.vipPricing?.eveningSlot?.priceINR > 0 && (
-                <View style={styles.vipSlot}>
-                  <Ionicons name="moon" size={20} color="#9B59B6" />
-                  <View style={{ flex: 1, marginLeft: 8 }}>
-                    <Text style={styles.vipSlotTitle}>Evening Darshan</Text>
-                    <Text style={styles.vipSlotTime}>{temple.vipPricing.eveningSlot.timeRange}</Text>
-                  </View>
-                  <Text style={styles.vipSlotPrice}>₹{temple.vipPricing.eveningSlot.priceINR}</Text>
-                </View>
-              )}
+            <View style={styles.vipPriceContainer}>
+              <Text style={styles.vipPriceLabel}>Starting from</Text>
+              <Text style={styles.vipPrice}>
+                ₹{temple.vipPricing.priceINR}
+              </Text>
+              <Text style={styles.vipPriceNote}>Multiple time slots available</Text>
             </View>
 
             <Pressable style={styles.vipButton} onPress={handleGetVipPass}>
@@ -286,110 +377,36 @@ export default function TempleDetail() {
               />
             </View>
 
-            <Text style={styles.slotLabel}>Select Time Slot:</Text>
+            <Text style={styles.slotLabel}>Select Time:</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.slotsContainer}>
-              {temple.vipPricing?.earlyMorningSlot?.priceINR > 0 && (
-                <Pressable
-                  style={[styles.slotCard, selectedSlot === 'earlyMorning' && styles.slotCardActive]}
-                  onPress={() => setSelectedSlot('earlyMorning')}
-                >
-                  <Ionicons name="moon" size={24} color={selectedSlot === 'earlyMorning' ? '#fff' : '#9B59B6'} />
-                  <Text style={[styles.slotCardTitle, selectedSlot === 'earlyMorning' && styles.slotCardTextActive]}>
-                    Early Morning
-                  </Text>
-                  <Text style={[styles.slotCardTime, selectedSlot === 'earlyMorning' && styles.slotCardTextActive]}>
-                    {temple.vipPricing.earlyMorningSlot.timeRange}
-                  </Text>
-                  <Text style={[styles.slotCardPrice, selectedSlot === 'earlyMorning' && styles.slotCardTextActive]}>
-                    ₹{temple.vipPricing.earlyMorningSlot.priceINR}
-                  </Text>
-                </Pressable>
-              )}
-              {temple.vipPricing?.morningSlot?.priceINR > 0 && (
-                <Pressable
-                  style={[styles.slotCard, selectedSlot === 'morning' && styles.slotCardActive]}
-                  onPress={() => setSelectedSlot('morning')}
-                >
-                  <Ionicons name="sunny" size={24} color={selectedSlot === 'morning' ? '#fff' : '#FFA500'} />
-                  <Text style={[styles.slotCardTitle, selectedSlot === 'morning' && styles.slotCardTextActive]}>
-                    Morning
-                  </Text>
-                  <Text style={[styles.slotCardTime, selectedSlot === 'morning' && styles.slotCardTextActive]}>
-                    {temple.vipPricing.morningSlot.timeRange}
-                  </Text>
-                  <Text style={[styles.slotCardPrice, selectedSlot === 'morning' && styles.slotCardTextActive]}>
-                    ₹{temple.vipPricing.morningSlot.priceINR}
-                  </Text>
-                </Pressable>
-              )}
-              {temple.vipPricing?.afternoonSlot?.priceINR > 0 && (
-                <Pressable
-                  style={[styles.slotCard, selectedSlot === 'afternoon' && styles.slotCardActive]}
-                  onPress={() => setSelectedSlot('afternoon')}
-                >
-                  <Ionicons name="partly-sunny" size={24} color={selectedSlot === 'afternoon' ? '#fff' : '#FF6B6B'} />
-                  <Text style={[styles.slotCardTitle, selectedSlot === 'afternoon' && styles.slotCardTextActive]}>
-                    Afternoon
-                  </Text>
-                  <Text style={[styles.slotCardTime, selectedSlot === 'afternoon' && styles.slotCardTextActive]}>
-                    {temple.vipPricing.afternoonSlot.timeRange}
-                  </Text>
-                  <Text style={[styles.slotCardPrice, selectedSlot === 'afternoon' && styles.slotCardTextActive]}>
-                    ₹{temple.vipPricing.afternoonSlot.priceINR}
-                  </Text>
-                </Pressable>
-              )}
-              {temple.vipPricing?.lateAfternoonSlot?.priceINR > 0 && (
-                <Pressable
-                  style={[styles.slotCard, selectedSlot === 'lateAfternoon' && styles.slotCardActive]}
-                  onPress={() => setSelectedSlot('lateAfternoon')}
-                >
-                  <Ionicons name="cloudy" size={24} color={selectedSlot === 'lateAfternoon' ? '#fff' : '#FF8C42'} />
-                  <Text style={[styles.slotCardTitle, selectedSlot === 'lateAfternoon' && styles.slotCardTextActive]}>
-                    Late Afternoon
-                  </Text>
-                  <Text style={[styles.slotCardTime, selectedSlot === 'lateAfternoon' && styles.slotCardTextActive]}>
-                    {temple.vipPricing.lateAfternoonSlot.timeRange}
-                  </Text>
-                  <Text style={[styles.slotCardPrice, selectedSlot === 'lateAfternoon' && styles.slotCardTextActive]}>
-                    ₹{temple.vipPricing.lateAfternoonSlot.priceINR}
-                  </Text>
-                </Pressable>
-              )}
-              {temple.vipPricing?.eveningSlot?.priceINR > 0 && (
-                <Pressable
-                  style={[styles.slotCard, selectedSlot === 'evening' && styles.slotCardActive]}
-                  onPress={() => setSelectedSlot('evening')}
-                >
-                  <Ionicons name="moon-outline" size={24} color={selectedSlot === 'evening' ? '#fff' : '#9B59B6'} />
-                  <Text style={[styles.slotCardTitle, selectedSlot === 'evening' && styles.slotCardTextActive]}>
-                    Evening
-                  </Text>
-                  <Text style={[styles.slotCardTime, selectedSlot === 'evening' && styles.slotCardTextActive]}>
-                    {temple.vipPricing.eveningSlot.timeRange}
-                  </Text>
-                  <Text style={[styles.slotCardPrice, selectedSlot === 'evening' && styles.slotCardTextActive]}>
-                    ₹{temple.vipPricing.eveningSlot.priceINR}
-                  </Text>
-                </Pressable>
-              )}
-              {temple.vipPricing?.nightSlot?.priceINR > 0 && (
-                <Pressable
-                  style={[styles.slotCard, selectedSlot === 'night' && styles.slotCardActive]}
-                  onPress={() => setSelectedSlot('night')}
-                >
-                  <Ionicons name="moon" size={24} color={selectedSlot === 'night' ? '#fff' : '#4A148C'} />
-                  <Text style={[styles.slotCardTitle, selectedSlot === 'night' && styles.slotCardTextActive]}>
-                    Night
-                  </Text>
-                  <Text style={[styles.slotCardTime, selectedSlot === 'night' && styles.slotCardTextActive]}>
-                    {temple.vipPricing.nightSlot.timeRange}
-                  </Text>
-                  <Text style={[styles.slotCardPrice, selectedSlot === 'night' && styles.slotCardTextActive]}>
-                    ₹{temple.vipPricing.nightSlot.priceINR}
-                  </Text>
-                </Pressable>
-              )}
+              {generateTimeSlots(temple.openingTime, temple.closingTime).map((slot) => {
+                const [hours] = slot.value.split(':').map(Number);
+                const endHour = (hours + 1) % 24;
+                const endTimeLabel = `${endHour % 12 || 12}:00 ${endHour < 12 ? ' AM' : 'PM'}`;
+
+                return (
+                  <Pressable
+                    key={slot.value}
+                    style={[styles.slotCard, selectedTime === slot.value && styles.slotCardActive]}
+                    onPress={() => setSelectedTime(slot.value)}
+                  >
+                    <Ionicons
+                      name="time"
+                      size={24}
+                      color={selectedTime === slot.value ? '#fff' : theme.colors.primary}
+                    />
+                    <Text style={[styles.slotCardTitle, selectedTime === slot.value && styles.slotCardTextActive]}>
+                      {slot.label}
+                    </Text>
+                    <Text style={[styles.slotCardTime, selectedTime === slot.value && styles.slotCardTextActive]}>
+                      Valid for 1 hour
+                    </Text>
+                    <Text style={[styles.slotCardTime, selectedTime === slot.value && styles.slotCardTextActive]}>
+                      ({slot.label} - {endTimeLabel})
+                    </Text>
+                  </Pressable>
+                );
+              })}
             </ScrollView>
 
             <Pressable
@@ -452,7 +469,7 @@ const getStyles = (theme: any) =>
       flexDirection: 'row',
       flexWrap: 'wrap',
       gap: 8,
-      marginBottom: 20,
+      marginBottom: 10,
     },
     deityChip: {
       backgroundColor: theme.mode === 'dark' ? '#2a2a2a' : '#f0f0f0',
@@ -464,6 +481,153 @@ const getStyles = (theme: any) =>
       fontSize: 13,
       color: theme.colors.text,
       fontWeight: '600',
+    },
+    hoursSection: {
+      backgroundColor: theme.mode === 'dark' ? '#1a2a1a' : '#f0f9f0',
+      borderRadius: 16,
+      padding: 16,
+      marginTop: 16,
+      marginBottom: 16,
+      borderWidth: 1,
+      borderColor: theme.colors.primary + '20',
+    },
+    hoursHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    hoursHeaderLeft: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      flex: 1,
+    },
+    hoursTitle: {
+      fontSize: 16,
+      fontWeight: '700',
+      color: theme.colors.text,
+      marginBottom: 4,
+    },
+    todayRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+      marginTop: 2,
+    },
+    todayLabel: {
+      fontSize: 13,
+      color: theme.colors.muted,
+    },
+    statusBadge: {
+      paddingHorizontal: 8,
+      paddingVertical: 2,
+      borderRadius: 8,
+    },
+    statusText: {
+      color: '#fff',
+      fontSize: 10,
+      fontWeight: '700',
+    },
+    hoursTime: {
+      fontSize: 15,
+      fontWeight: '600',
+      color: theme.colors.text,
+      marginTop: 4,
+    },
+    weeklyHours: {
+      marginTop: 12,
+    },
+    divider: {
+      height: 1,
+      backgroundColor: theme.colors.border,
+      marginBottom: 12,
+    },
+    dayRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingVertical: 10,
+      paddingHorizontal: 8,
+      borderRadius: 8,
+    },
+    dayRowToday: {
+      backgroundColor: theme.colors.primary + '15',
+    },
+    dayLeft: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+      flex: 1,
+    },
+    dayName: {
+      fontSize: 14,
+      color: theme.colors.text,
+      fontWeight: '500',
+    },
+    dayNameToday: {
+      fontWeight: '700',
+      color: theme.colors.primary,
+    },
+    dayTime: {
+      fontSize: 14,
+      color: theme.colors.muted,
+    },
+    dayTimeToday: {
+      color: theme.colors.text,
+      fontWeight: '600',
+    },
+    liveDarshanSection: {
+      backgroundColor: theme.mode === 'dark' ? '#2a1a1a' : '#fff5f5',
+      borderRadius: 16,
+      padding: 16,
+      marginBottom: 24,
+      borderWidth: 2,
+      borderColor: '#FF0000' + '30',
+    },
+    liveDarshanHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 8,
+    },
+    liveDarshanHeaderLeft: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+    },
+    liveDarshanTitle: {
+      fontSize: 20,
+      fontWeight: '800',
+      color: theme.colors.text,
+    },
+    freeBadge: {
+      backgroundColor: '#4CAF50',
+      paddingHorizontal: 12,
+      paddingVertical: 4,
+      borderRadius: 12,
+    },
+    freeBadgeText: {
+      color: '#fff',
+      fontSize: 12,
+      fontWeight: '700',
+    },
+    liveDarshanSubtitle: {
+      fontSize: 13,
+      color: theme.colors.muted,
+      marginBottom: 16,
+    },
+    liveDarshanButton: {
+      backgroundColor: '#FF0000',
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: 14,
+      borderRadius: 12,
+      gap: 8,
+    },
+    liveDarshanButtonText: {
+      color: '#fff',
+      fontSize: 16,
+      fontWeight: '700',
     },
     vipSection: {
       backgroundColor: theme.mode === 'dark' ? '#2a1a4a' : '#f3e5f5',
@@ -494,31 +658,25 @@ const getStyles = (theme: any) =>
       color: theme.colors.muted,
       marginBottom: 16,
     },
-    vipSlots: {
-      gap: 8,
+    vipPriceContainer: {
+      alignItems: 'center',
+      paddingVertical: 16,
       marginBottom: 16,
     },
-    vipSlot: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      backgroundColor: theme.mode === 'dark' ? '#1a1a1a' : '#fff',
-      padding: 12,
-      borderRadius: 12,
-    },
-    vipSlotTitle: {
+    vipPriceLabel: {
       fontSize: 14,
-      fontWeight: '600',
-      color: theme.colors.text,
+      color: theme.colors.muted,
+      marginBottom: 8,
     },
-    vipSlotTime: {
+    vipPrice: {
+      fontSize: 36,
+      fontWeight: '800',
+      color: theme.colors.primary,
+      marginBottom: 4,
+    },
+    vipPriceNote: {
       fontSize: 12,
       color: theme.colors.muted,
-      marginTop: 2,
-    },
-    vipSlotPrice: {
-      fontSize: 16,
-      fontWeight: '700',
-      color: theme.colors.primary,
     },
     vipButton: {
       backgroundColor: theme.colors.primary,

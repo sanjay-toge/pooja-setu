@@ -10,29 +10,34 @@ function generateQRCode(userId, templeId, date, timeSlot) {
 // Purchase VIP pass
 exports.purchaseVipPass = async (req, res) => {
     try {
-        const { templeId, templeName, date, timeSlot, timeRange, amountPaidINR } = req.body;
+        const { templeId, templeName, date, startTime, amountPaidINR } = req.body;
         const userId = req.userId;
 
         // Validate required fields
-        if (!templeId || !templeName || !date || !timeSlot || !timeRange || !amountPaidINR) {
+        if (!templeId || !templeName || !date || !startTime || !amountPaidINR) {
             return res.status(400).json({ error: 'All fields are required' });
         }
 
-        // Check if user already has a pass for this temple/date/slot
+        // Calculate end time (1 hour after start time)
+        const [hours, minutes] = startTime.split(':').map(Number);
+        const endHour = (hours + 1) % 24;
+        const endTime = `${endHour.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+
+        // Check if user already has a pass for this temple/date/time
         const existing = await VipPass.findOne({
             userId,
             templeId,
             date,
-            timeSlot,
+            startTime,
             status: { $in: ['active', 'used'] }
         });
 
         if (existing) {
-            return res.status(400).json({ error: 'You already have a VIP pass for this slot' });
+            return res.status(400).json({ error: 'You already have a VIP pass for this time' });
         }
 
         // Generate unique QR code
-        const qrCodeData = generateQRCode(userId, templeId, date, timeSlot);
+        const qrCodeData = generateQRCode(userId, templeId, date, startTime);
 
         // Create VIP pass
         const vipPass = await VipPass.create({
@@ -40,8 +45,8 @@ exports.purchaseVipPass = async (req, res) => {
             templeId,
             templeName,
             date,
-            timeSlot,
-            timeRange,
+            startTime,
+            endTime,
             amountPaidINR,
             qrCodeData,
             status: 'active'
@@ -68,26 +73,19 @@ exports.getMyVipPasses = async (req, res) => {
             query.status = status;
         }
 
-        const passes = await VipPass.find(query).sort({ date: -1, timeSlot: 1 });
+        const passes = await VipPass.find(query).sort({ date: -1, startTime: 1 });
 
-        // Update expired passes - check if time slot has ended
+        // Update expired passes - check if end time has passed
         const now = new Date();
         for (const pass of passes) {
             if (pass.status === 'active') {
-                // Get slot end time
-                const slotEndTimes = {
-                    'morning': 9,    // 6 AM - 9 AM
-                    'afternoon': 15, // 12 PM - 3 PM
-                    'evening': 20    // 5 PM - 8 PM
-                };
+                // Parse pass end time
+                const [endHour, endMinute] = pass.endTime.split(':').map(Number);
+                const passDateTime = new Date(pass.date + 'T00:00:00');
+                passDateTime.setHours(endHour, endMinute, 0, 0);
 
-                const passDate = new Date(pass.date + 'T00:00:00');
-                const slotEndHour = slotEndTimes[pass.timeSlot] || 9;
-                const slotEndTime = new Date(passDate);
-                slotEndTime.setHours(slotEndHour, 0, 0, 0);
-
-                // Only mark as expired if the time slot has actually ended
-                if (now > slotEndTime) {
+                // Mark as expired if end time has passed
+                if (now > passDateTime) {
                     pass.status = 'expired';
                     await pass.save();
                 }

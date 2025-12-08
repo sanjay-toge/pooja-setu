@@ -18,13 +18,12 @@ const vipPassSchema = new mongoose.Schema({
         type: String, // Format: YYYY-MM-DD
         required: true
     },
-    timeSlot: {
-        type: String,
-        enum: ['morning', 'afternoon', 'evening'],
+    startTime: {
+        type: String, // Format: HH:MM (24-hour)
         required: true
     },
-    timeRange: {
-        type: String, // e.g., "6:00 AM - 9:00 AM"
+    endTime: {
+        type: String, // Format: HH:MM (24-hour) - startTime + 1 hour
         required: true
     },
     amountPaidINR: {
@@ -58,6 +57,6 @@ const vipPassSchema = new mongoose.Schema({
 // Index for efficient querying
 vipPassSchema.index({ userId: 1, status: 1 });
 vipPassSchema.index({ qrCodeData: 1 });
-vipPassSchema.index({ date: 1, timeSlot: 1 });
+vipPassSchema.index({ date: 1, startTime: 1 });
 
 module.exports = mongoose.model('VipPass', vipPassSchema);
