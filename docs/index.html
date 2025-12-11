@@ -3,589 +3,230 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Privacy Policy for PoojaSetu - Temple Pooja Booking and Live Streaming Platform">
-    <meta name="keywords" content="PoojaSetu, Privacy Policy, Temple Booking, Pooja Services">
-    <meta name="author" content="Sanjay Toge">
-    <title>Privacy Policy - PoojaSetu</title>
+    <title>PoojaSetu - Your Gateway to Divine Blessings</title>
     <style>
+        :root {
+            --primary: #FF6B35;
+            --secondary: #2E1A47;
+            --text-light: #F4F4F9;
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #2E1A47 0%, #4A2B70 100%);
             min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            overflow: hidden;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #FF6B35 0%, #F7931E 100%);
-            color: white;
-            padding: 40px 30px;
-            text-align: center;
-        }
-
-        .header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            font-weight: 700;
-        }
-
-        .header .app-name {
-            font-size: 1.2em;
-            opacity: 0.95;
-            font-weight: 500;
-        }
-
-        .header .last-updated {
-            margin-top: 15px;
-            font-size: 0.9em;
-            opacity: 0.9;
-            font-style: italic;
-        }
-
-        .content {
-            padding: 40px 50px 50px;
-        }
-
-        h2 {
-            color: #667eea;
-            margin-top: 40px;
-            margin-bottom: 20px;
-            font-size: 1.8em;
-            border-bottom: 3px solid #FF6B35;
-            padding-bottom: 10px;
-        }
-
-        h3 {
-            color: #764ba2;
-            margin-top: 25px;
-            margin-bottom: 15px;
-            font-size: 1.3em;
-        }
-
-        p {
-            margin-bottom: 15px;
-            text-align: justify;
-        }
-
-        ul, ol {
-            margin-left: 25px;
-            margin-bottom: 15px;
-        }
-
-        li {
-            margin-bottom: 8px;
-        }
-
-        strong {
-            color: #FF6B35;
-            font-weight: 600;
-        }
-
-        .app-details {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            padding: 20px;
-            border-radius: 10px;
-            margin: 20px 0;
-            border-left: 5px solid #667eea;
-        }
-
-        .app-details ul {
-            list-style: none;
-            margin: 0;
-        }
-
-        .app-details li {
-            padding: 5px 0;
-        }
-
-        .contact-box {
-            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
-            padding: 25px;
-            border-radius: 15px;
-            margin: 30px 0;
-            border: 2px solid #FF6B35;
-        }
-
-        .contact-box h2 {
-            margin-top: 0;
-            border-bottom: none;
-            color: #d63031;
-        }
-
-        .contact-box p {
-            margin: 10px 0;
-        }
-
-        .highlight-box {
-            background: #fff3cd;
-            border-left: 5px solid #ffc107;
-            padding: 15px;
-            margin: 20px 0;
-            border-radius: 5px;
-        }
-
-        .section-divider {
-            height: 2px;
-            background: linear-gradient(to right, #667eea, #764ba2, #FF6B35);
-            margin: 40px 0;
-            border: none;
-        }
-
-        .footer {
-            background: #2d3436;
-            color: white;
-            text-align: center;
-            padding: 30px;
-            margin-top: 40px;
-        }
-
-        .footer p {
-            margin: 5px 0;
-            text-align: center;
-        }
-
-        @media (max-width: 768px) {
-            body {
-                padding: 10px;
-            }
-
-            .content {
-                padding: 25px 20px;
-            }
-
-            .header h1 {
-                font-size: 2em;
-            }
-
-            h2 {
-                font-size: 1.5em;
-            }
-
-            h3 {
-                font-size: 1.2em;
-            }
-        }
-
-        .back-to-top {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
+            color: var(--text-light);
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Ambient Orbs */
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: 0;
+            opacity: 0.6;
+        }
+
+        .orb-1 { width: 300px; height: 300px; background: #FF6B35; top: -50px; left: -50px; }
+        .orb-2 { width: 400px; height: 400px; background: #7C3AED; bottom: -100px; right: -100px; }
+
+        .container {
+            z-index: 10;
+            text-align: center;
+            padding: 2rem;
+            max-width: 800px;
+            width: 90%;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            box-shadow: 0 40px 80px rgba(0,0,0,0.3);
+            animation: fadeIn 1s ease-out;
+        }
+
+        .logo {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(to right, #FF6B35, #FFD700);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 1rem;
+            letter-spacing: -1px;
+        }
+
+        .tagline {
+            font-size: 1.5rem;
+            font-weight: 300;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.5rem 1.5rem;
+            background: rgba(255, 107, 53, 0.2);
+            border: 1px solid #FF6B35;
+            color: #FFD700;
+            border-radius: 50px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            margin-bottom: 2rem;
+        }
+
+        .description {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 2.5rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .notify-form {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 2rem;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .notify-input {
+            flex: 1;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            border: none;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .notify-input:focus {
+            transform: scale(1.02);
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.3);
+        }
+
+        .notify-btn {
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            border: none;
+            background: #FF6B35;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .notify-btn:hover {
+            background: #ff8557;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(255, 107, 53, 0.3);
+        }
+
+        .features {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .feature-icon {
+            color: #FFD700;
+        }
+
+        footer {
+            margin-top: 3rem;
+            font-size: 0.8rem;
+            opacity: 0.6;
+        }
+
+        footer a {
+            color: #FFD700;
             text-decoration: none;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            font-size: 24px;
-            transition: transform 0.3s ease;
+            transition: opacity 0.3s;
         }
 
-        .back-to-top:hover {
-            transform: translateY(-5px);
-        }
-
-        a {
-            color: #667eea;
-            text-decoration: none;
-            font-weight: 500;
-        }
-
-        a:hover {
+        footer a:hover {
+            opacity: 1;
             text-decoration: underline;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 600px) {
+            .logo { font-size: 2.5rem; }
+            .notify-form { flex-direction: column; }
+            .container { padding: 1.5rem; width: 95%; }
         }
     </style>
 </head>
 <body>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
     <div class="container">
-        <div class="header">
-            <h1>Privacy Policy</h1>
-            <div class="app-name">PoojaSetu</div>
-            <div class="last-updated">Last Updated: December 2, 2025 | Effective Date: December 2, 2025</div>
+        <div class="status-badge">App Coming Soon</div>
+        <h1 class="logo">PoojaSetu</h1>
+        <p class="tagline">Your Digital Gateway to Divine Blessings</p>
+        
+        <p class="description">
+            Experience the sanctity of temple poojas from the comfort of your home. 
+            Book personalized rituals, watch live darshans, and connect with 
+            verified pandits across India's holiest shrines.
+        </p>
+
+        <div class="notify-form">
+            <input type="email" class="notify-input" placeholder="Enter your email for early access" required>
+            <button class="notify-btn">Notify Me</button>
         </div>
 
-        <div class="content">
-            <h2>1. Introduction</h2>
-            <p>Welcome to PoojaSetu ("we," "our," or "us"). This Privacy Policy explains how we collect, use, store, and share your personal information when you use our mobile application (the "App") available on Android devices.</p>
-            <p>PoojaSetu is a temple pooja booking and live streaming platform that connects devotees with temples for spiritual services. By using our App, you agree to the collection and use of information in accordance with this Privacy Policy.</p>
-            
-            <div class="app-details">
-                <strong>App Details:</strong>
-                <ul>
-                    <li><strong>App Name:</strong> PoojaSetu</li>
-                    <li><strong>Package Name:</strong> com.sanjay.toge.poojasetu</li>
-                    <li><strong>Developer:</strong> Sanjay Toge</li>
-                </ul>
+        <div class="features">
+            <div class="feature-item">
+                <span class="feature-icon">★</span> Live Darshan
             </div>
-
-            <h2>2. Information We Collect</h2>
-            
-            <h3>2.1 Personal Information You Provide</h3>
-            <p>When you register and use PoojaSetu, we collect the following personal information:</p>
-            <ul>
-                <li><strong>Name:</strong> Your full name for identification and booking purposes</li>
-                <li><strong>Email Address:</strong> For account verification, notifications, and communication</li>
-                <li><strong>Phone Number:</strong> For account authentication and booking confirmations</li>
-                <li><strong>Profile Photo:</strong> Optional profile picture uploaded by you</li>
-                <li><strong>Date of Birth (DOB):</strong> For personalized spiritual services</li>
-                <li><strong>Place of Birth (POB):</strong> For astrological and spiritual service requirements</li>
-                <li><strong>Spiritual Details:</strong> Including Gotra, Nakshatra, and intentions for pooja rituals</li>
-            </ul>
-
-            <h3>2.2 Booking and Transaction Information</h3>
-            <ul>
-                <li>Pooja booking details (temple, pooja type, date, time slot)</li>
-                <li>Payment information and transaction amounts (in INR)</li>
-                <li>Add-on services selected</li>
-                <li>Booking status and history</li>
-            </ul>
-
-            <h3>2.3 Authentication Information</h3>
-            <ul>
-                <li>Authentication provider information (Phone, Google, or Facebook)</li>
-                <li>Authentication tokens and session data</li>
-                <li>Login timestamps and activity logs</li>
-            </ul>
-
-            <h3>2.4 Automatically Collected Information</h3>
-            <ul>
-                <li><strong>Device Information:</strong> Device type, operating system version, unique device identifiers</li>
-                <li><strong>Usage Data:</strong> App usage patterns, features accessed, time spent on the App</li>
-                <li><strong>Log Data:</strong> IP address, crash reports, performance data</li>
-                <li><strong>Location Data:</strong> Approximate location based on IP address (not precise GPS location)</li>
-            </ul>
-
-            <h3>2.5 Media and Communications</h3>
-            <ul>
-                <li><strong>Live Stream Access:</strong> Metadata about live pooja streams you view</li>
-                <li><strong>Recorded Videos:</strong> URLs and access logs for recorded pooja ceremonies</li>
-                <li><strong>Camera/Photos:</strong> Only if you choose to upload a profile photo (optional)</li>
-            </ul>
-
-            <hr class="section-divider">
-
-            <h2>3. How We Use Your Information</h2>
-            <p>We use the collected information for the following purposes:</p>
-
-            <h3>3.1 Service Provision</h3>
-            <ul>
-                <li>Creating and managing your account</li>
-                <li>Processing pooja bookings and payments</li>
-                <li>Providing access to live streams and recordings of booked poojas</li>
-                <li>Communicating booking confirmations and updates</li>
-            </ul>
-
-            <h3>3.2 Personalization</h3>
-            <ul>
-                <li>Customizing your App experience</li>
-                <li>Providing personalized recommendations for temples and poojas</li>
-                <li>Sending relevant notifications about spiritual services</li>
-            </ul>
-
-            <h3>3.3 Communications</h3>
-            <ul>
-                <li>Sending booking confirmations and reminders</li>
-                <li>Providing customer support</li>
-                <li>Sending administrative information and updates</li>
-                <li>Marketing communications (with your consent)</li>
-            </ul>
-
-            <h3>3.4 Security and Fraud Prevention</h3>
-            <ul>
-                <li>Protecting against fraudulent transactions</li>
-                <li>Ensuring platform security and integrity</li>
-                <li>Verifying user identity</li>
-            </ul>
-
-            <h3>3.5 Analytics and Improvement</h3>
-            <ul>
-                <li>Understanding how users interact with our App</li>
-                <li>Improving App functionality and user experience</li>
-                <li>Developing new features and services</li>
-                <li>Conducting research and analytics</li>
-            </ul>
-
-            <hr class="section-divider">
-
-            <h2>4. Data Sharing and Disclosure</h2>
-
-            <h3>4.1 Service Providers and Partners</h3>
-            <p>We may share your information with:</p>
-            <ul>
-                <li><strong>Temple Partners:</strong> Name and booking details shared with temples where you book poojas</li>
-                <li><strong>Payment Processors:</strong> Transaction information shared securely with payment gateways</li>
-                <li><strong>Cloud Service Providers:</strong> For secure data storage (MongoDB Atlas, AWS, etc.)</li>
-                <li><strong>Authentication Providers:</strong> Google and Facebook for social login functionality</li>
-                <li><strong>Analytics Services:</strong> Aggregated, anonymized data for usage analysis</li>
-            </ul>
-
-            <h3>4.2 Legal Requirements</h3>
-            <p>We may disclose your information when required by law or in response to:</p>
-            <ul>
-                <li>Valid legal processes (subpoenas, court orders)</li>
-                <li>Governmental requests</li>
-                <li>Protection of our rights, property, or safety</li>
-                <li>Enforcement of our Terms of Service</li>
-            </ul>
-
-            <h3>4.3 Business Transfers</h3>
-            <p>In the event of a merger, acquisition, or sale of assets, your information may be transferred to the acquiring entity.</p>
-
-            <h3>4.4 With Your Consent</h3>
-            <p>We may share information for other purposes with your explicit consent.</p>
-
-            <hr class="section-divider">
-
-            <h2>5. Data Storage and Security</h2>
-
-            <h3>5.1 Data Storage</h3>
-            <ul>
-                <li>Your data is stored securely on cloud servers (MongoDB Atlas)</li>
-                <li>Data is encrypted in transit using HTTPS/TLS</li>
-                <li>Database credentials are protected using industry-standard security measures</li>
-            </ul>
-
-            <h3>5.2 Security Measures</h3>
-            <p>We implement appropriate technical and organizational measures:</p>
-            <ul>
-                <li>Encryption of data in transit and at rest</li>
-                <li>Regular security audits and updates</li>
-                <li>Access controls and authentication mechanisms</li>
-                <li>Secure API endpoints with token-based authentication</li>
-            </ul>
-
-            <h3>5.3 Data Retention</h3>
-            <ul>
-                <li>Active account data is retained while your account is active</li>
-                <li>Booking history is retained for 7 years for legal and accounting purposes</li>
-                <li>You may request account deletion at any time (see Section 7.2)</li>
-                <li>Backups are retained for 30 days and then permanently deleted</li>
-            </ul>
-
-            <hr class="section-divider">
-
-            <h2>6. Third-Party Services</h2>
-
-            <h3>6.1 Authentication</h3>
-            <p>We use third-party authentication services:</p>
-            <ul>
-                <li><strong>Google Sign-In:</strong> Subject to Google's Privacy Policy</li>
-                <li><strong>Facebook Login:</strong> Subject to Facebook's Data Policy</li>
-            </ul>
-            <p>When you use these services, your information is also governed by their respective privacy policies.</p>
-
-            <h3>6.2 Payment Processing</h3>
-            <p>Payment information is processed by third-party payment gateways. We do not store complete credit card information on our servers.</p>
-
-            <h3>6.3 Analytics</h3>
-            <p>We may use analytics services to understand app usage. These services may collect device identifiers and usage data.</p>
-
-            <hr class="section-divider">
-
-            <h2>7. Your Rights and Choices</h2>
-
-            <h3>7.1 Access and Correction</h3>
-            <p>You have the right to:</p>
-            <ul>
-                <li>Access your personal information</li>
-                <li>Correct inaccurate or incomplete data</li>
-                <li>Update your profile information through the App</li>
-            </ul>
-
-            <h3>7.2 Data Deletion</h3>
-            <p>You can request deletion of your account and personal data by:</p>
-            <ul>
-                <li>Contacting us at sanjaystoge@gmail.com</li>
-                <li>Following the in-app account deletion process</li>
-            </ul>
-            <p><em>Note: Some information may be retained for legal compliance or legitimate business purposes.</em></p>
-
-            <h3>7.3 Marketing Communications</h3>
-            <p>You can opt-out of marketing communications by:</p>
-            <ul>
-                <li>Using the unsubscribe link in emails</li>
-                <li>Adjusting notification settings in the App</li>
-                <li>Contacting us directly</li>
-            </ul>
-
-            <h3>7.4 Cookie Management</h3>
-            <p>You can manage cookies and tracking technologies through your device settings.</p>
-
-            <hr class="section-divider">
-
-            <h2>8. Children's Privacy</h2>
-            <p>PoojaSetu is not intended for users under the age of 13. We do not knowingly collect personal information from children under 13. If you are a parent or guardian and believe your child has provided us with personal information, please contact us, and we will delete such information.</p>
-
-            <h2>9. International Data Transfers</h2>
-            <p>Your information may be transferred to and processed in countries other than your country of residence. We ensure appropriate safeguards are in place to protect your information in accordance with this Privacy Policy.</p>
-
-            <hr class="section-divider">
-
-            <h2>10. Compliance with Regulations</h2>
-
-            <h3>10.1 Indian Laws</h3>
-            <p>We comply with:</p>
-            <ul>
-                <li>Information Technology Act, 2000</li>
-                <li>Information Technology (Reasonable Security Practices and Procedures and Sensitive Personal Data or Information) Rules, 2011</li>
-            </ul>
-
-            <h3>10.2 GDPR (for EU Users)</h3>
-            <p>If you are in the European Union, you have additional rights under GDPR:</p>
-            <ul>
-                <li>Right to data portability</li>
-                <li>Right to object to processing</li>
-                <li>Right to restrict processing</li>
-                <li>Right to lodge a complaint with supervisory authorities</li>
-            </ul>
-
-            <h3>10.3 CCPA (for California Users)</h3>
-            <p>California residents have the right to:</p>
-            <ul>
-                <li>Know what personal information is collected</li>
-                <li>Know whether personal information is sold or disclosed</li>
-                <li>Opt-out of the sale of personal information</li>
-                <li>Request deletion of personal information</li>
-                <li>Non-discrimination for exercising privacy rights</li>
-            </ul>
-
-            <hr class="section-divider">
-
-            <h2>11. Google Play Store Compliance</h2>
-
-            <h3>11.1 Data Safety Section Disclosures</h3>
-            <p>Our app collects and shares data as disclosed in the Google Play Store Data Safety section:</p>
-            
-            <div class="highlight-box">
-                <strong>Data Collected:</strong>
-                <ul>
-                    <li>Personal Information (name, email, phone number)</li>
-                    <li>Financial Information (payment and transaction data)</li>
-                    <li>Photos (optional, user-uploaded profile pictures)</li>
-                    <li>App activity and interactions</li>
-                </ul>
-                
-                <strong>Data Security:</strong>
-                <ul>
-                    <li>Data is encrypted in transit</li>
-                    <li>You can request data deletion</li>
-                    <li>Data collection practices comply with Play Families Policy</li>
-                </ul>
+            <div class="feature-item">
+                <span class="feature-icon">★</span> Online Puja Booking
             </div>
-
-            <h3>11.2 Permissions Required</h3>
-            <p>Our app requires the following permissions:</p>
-            <ul>
-                <li><strong>Internet Access:</strong> To connect to our servers and stream content</li>
-                <li><strong>Network State:</strong> To check connectivity</li>
-                <li><strong>Storage:</strong> To cache content for offline viewing (optional)</li>
-                <li><strong>Camera/Photos:</strong> Only if you choose to upload a profile photo (optional)</li>
-            </ul>
-
-            <hr class="section-divider">
-
-            <h2>12. Changes to This Privacy Policy</h2>
-            <p>We may update this Privacy Policy from time to time. We will notify you of material changes by:</p>
-            <ul>
-                <li>Posting the updated policy in the App</li>
-                <li>Sending an email or notification</li>
-                <li>Updating the "Last Updated" date</li>
-            </ul>
-            <p>Your continued use of the App after changes constitutes acceptance of the updated Privacy Policy.</p>
-
-            <div class="contact-box">
-                <h2>13. Contact Us</h2>
-                <p>If you have questions, concerns, or requests regarding this Privacy Policy or your personal data, please contact us:</p>
-                <p><strong>Email:</strong> <a href="mailto:sanjaystoge@gmail.com">sanjaystoge@gmail.com</a></p>
-                <p><strong>Address:</strong> Gurgaon, Haryana, India</p>
-                <p><strong>Phone:</strong> <a href="tel:+917058677407">+91 7058677407</a></p>
-                <p><strong>Response Time:</strong> We will respond to privacy-related inquiries within 30 days.</p>
+            <div class="feature-item">
+                <span class="feature-icon">★</span> Verified Pandits
             </div>
-
-            <h2>14. Additional Information</h2>
-
-            <h3>14.1 Do Not Track</h3>
-            <p>Our App does not currently respond to "Do Not Track" signals.</p>
-
-            <h3>14.2 Data Breach Notification</h3>
-            <p>In the event of a data breach that affects your personal information, we will notify you and relevant authorities as required by applicable law.</p>
-
-            <h3>14.3 Consent</h3>
-            <p>By using PoojaSetu, you consent to:</p>
-            <ul>
-                <li>The collection and use of information as described in this Privacy Policy</li>
-                <li>The transfer of your information to our servers and service providers</li>
-                <li>Receiving communications from us related to your bookings and account</li>
-            </ul>
-
-            <hr class="section-divider">
-
-            <div class="highlight-box">
-                <h3>Google Play Console Required Information</h3>
-                <p>For Google Play Store compliance, please note:</p>
-                <ol>
-                    <li><strong>Data Collection:</strong> We collect personal identifiable information, financial information, and usage data as described above.</li>
-                    <li><strong>Data Usage:</strong> Data is used for app functionality, analytics, personalization, and fraud prevention.</li>
-                    <li><strong>Data Sharing:</strong> We share data with service providers, temple partners, and as required by law.</li>
-                    <li><strong>Security:</strong> We implement encryption, secure authentication, and access controls.</li>
-                    <li><strong>User Rights:</strong> Users can access, correct, and delete their data.</li>
-                    <li><strong>Contact:</strong> Privacy inquiries should be sent to sanjaystoge@gmail.com.</li>
-                </ol>
-            </div>
-
-            <hr class="section-divider">
-
-            <p style="text-align: center; margin-top: 40px; font-weight: 600; font-size: 1.1em;">
-                <strong>Acknowledgment:</strong> By installing, accessing, or using the PoojaSetu app, you acknowledge that you have read, understood, and agree to be bound by this Privacy Policy.
-            </p>
         </div>
 
-        <div class="footer">
-            <p>&copy; 2025 PoojaSetu. All rights reserved.</p>
-            <p>Developed by Sanjay Toge</p>
-        </div>
+        <footer>
+            &copy; 2025 PoojaSetu. All rights reserved. <br>
+            <a href="privacy-policy.html">Privacy Policy</a>
+        </footer>
     </div>
-
-    <a href="#" class="back-to-top">↑</a>
-
-    <script>
-        // Smooth scroll for back to top
-        document.querySelector('.back-to-top').addEventListener('click', function(e) {
-            e.preventDefault();
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
-        });
-
-        // Show/hide back to top button
-        window.addEventListener('scroll', function() {
-            const button = document.querySelector('.back-to-top');
-            if (window.pageYOffset > 300) {
-                button.style.display = 'flex';
-            } else {
-                button.style.display = 'none';
-            }
-        });
-    </script>
 </body>
 </html>
