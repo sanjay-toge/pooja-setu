@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import { View, Text, TextInput, ScrollView, Pressable, ActivityIndicator } from 'react-native'
 import { useTheme } from '../../src/theme'
 import { router } from 'expo-router'
-import Card from '../../src/components/Card'
+import PoojaCard from '../../src/components/PoojaCard'
 import PanchangCard from '../../src/components/PanchangCard'
 import HoroscopeCard from '../../src/components/HoroscopeCard'
 import { useStore } from '../../src/store'
@@ -27,22 +27,15 @@ export default function Home() {
   const horoscopeData = user?.dob ? getHoroscopeByDOB(user.dob) : null
 
   // Filter Logic
-  const filteredTemples = temples.filter(t => {
+  const filteredPoojas = poojas.filter(p => {
     const q = filters.query?.toLowerCase() || ''
     if (!q) return true
 
-    // Check City
-    if (t.city.toLowerCase().includes(q)) return true
+    // Check Pooja Name
+    if (p.title?.toLowerCase().includes(q)) return true
 
-    // Check Deity
-    if (t.deities.some((d: string) => d.toLowerCase().includes(q))) return true
-
-    // Check Pooja Type
-    const templePoojaTypes = poojas
-      .filter(p => p.templeId === t.id)
-      .map(p => p.type?.toLowerCase())
-
-    if (templePoojaTypes.some(type => type?.includes(q))) return true
+    // Check Deity (if available, assuming p.deity or similar structure if exists, otherwise skipping)
+    // if (p.deity?.toLowerCase().includes(q)) return true
 
     return false
   })
@@ -76,55 +69,17 @@ export default function Home() {
       {horoscopeData && <HoroscopeCard horoscope={horoscopeData} />}
 
       {/* Daily Panchang */}
-      <PanchangCard panchang={panchangData} />
+      {/* <PanchangCard panchang={panchangData} /> */}
 
-
-      {/* VIP Access Promotion */}
-      <Pressable
-        style={{
-          backgroundColor: theme.mode === 'dark' ? '#2a1a4a' : '#f3e5f5',
-          borderRadius: theme.radius,
-          padding: 20,
-          marginBottom: 16,
-          flexDirection: 'row',
-          alignItems: 'center',
-          ...theme.shadow,
-        }}
-        onPress={() => router.push('/(tabs)/temples')}
-      >
-        <View style={{ flex: 1 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
-            <Ionicons name="star" size={20} color="#FFD700" />
-            <Text style={{ fontSize: 18, fontWeight: '800', color: theme.colors.text, marginLeft: 6 }}>
-              Premium VIP Access
-            </Text>
-          </View>
-          <Text style={{ fontSize: 14, color: theme.colors.muted, marginBottom: 8 }}>
-            Skip the queue • Priority darshan • Exclusive entry
-          </Text>
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Text style={{ fontSize: 13, color: theme.colors.primary, fontWeight: '600' }}>
-              Get VIP Pass
-            </Text>
-            <Ionicons name="arrow-forward" size={16} color={theme.colors.primary} style={{ marginLeft: 4 }} />
-          </View>
-        </View>
-        <Ionicons name="ticket" size={48} color={theme.colors.primary} style={{ opacity: 0.3 }} />
-      </Pressable>
-
-      <View style={{ backgroundColor: theme.colors.card, padding: 12, borderRadius: 12, marginBottom: 12 }}>
+      <View style={{ backgroundColor: theme.colors.card, padding: 12, borderRadius: 12, marginBottom: 12, marginTop: 8 }}>
         <Text style={{ marginBottom: 6, color: theme.colors.text }}>Search</Text>
         <TextInput
           value={filters.query || ''}
           onChangeText={t => setFilter('query', t)}
-          placeholder='Search by City, Deity, or Pooja Type'
+          placeholder='Search Poojas...'
           placeholderTextColor={theme.colors.muted}
           style={{ backgroundColor: theme.mode === 'dark' ? '#404040' : '#fff', color: theme.colors.text, padding: 12, borderRadius: 8 }}
         />
-
-        <Pressable onPress={() => router.push('/(tabs)/temples')} style={{ marginTop: 12, padding: 12, backgroundColor: theme.colors.primary, borderRadius: 12, alignItems: 'center' }}>
-          <Text style={{ color: '#fff', fontWeight: '700' }}>Search Temples</Text>
-        </Pressable>
       </View>
 
       {/* AI Recommendations */}
@@ -134,9 +89,13 @@ export default function Home() {
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {recommendations.map(p => (
               <View key={p.id} style={{ width: 200, marginRight: 12 }}>
-                <Card
+                <PoojaCard
                   title={p.title}
-                  subtitle={`₹${p.basePriceINR}`}
+                  subtitle={p.description}
+                  price={p.basePriceINR}
+                  image={p.imageUrl}
+                  duration={`${p.durationMinutes} mins`}
+                  participants={p.participantCount}
                   onPress={() => router.push(`/pooja/${p.id}`)}
                 />
               </View>
@@ -145,13 +104,22 @@ export default function Home() {
         </View>
       )}
 
-      <Text style={{ fontWeight: '700', marginBottom: 8, color: theme.colors.text }}>Featured Temples</Text>
+      <Text style={{ fontWeight: '700', marginBottom: 8, color: theme.colors.text }}>Popular Poojas</Text>
 
       {isLoading ? (
         <ActivityIndicator size="large" color={theme.colors.primary} style={{ marginTop: 20 }} />
       ) : (
-        filteredTemples.map(t => (
-          <Card key={t.id} title={t.name} subtitle={`${t.city} • ★ ${t.rating}`} image={t.heroImageUrl} onPress={() => router.push(`/temple/${t.id}`)} />
+        filteredPoojas.map(p => (
+          <PoojaCard
+            key={p.id}
+            title={p.title}
+            subtitle={p.description}
+            price={p.basePriceINR}
+            image={p.imageUrl}
+            duration={`${p.durationMinutes} mins`}
+            participants={p.participantCount}
+            onPress={() => router.push(`/pooja/${p.id}`)}
+          />
         ))
       )}
     </ScrollView>

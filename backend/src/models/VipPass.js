@@ -56,7 +56,6 @@ const vipPassSchema = new mongoose.Schema({
 
 // Index for efficient querying
 vipPassSchema.index({ userId: 1, status: 1 });
-vipPassSchema.index({ qrCodeData: 1 });
 vipPassSchema.index({ date: 1, startTime: 1 });
 
 module.exports = mongoose.model('VipPass', vipPassSchema);

@@ -23,11 +23,11 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="temples"
+        name="teachings"
         options={{
-          title: 'Temples',
+          title: 'Teachings',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="business" color={color} size={size} />
+            <Ionicons name="book" color={color} size={size} />
           ),
         }}
       />
@@ -40,12 +40,13 @@ export default function TabsLayout() {
           ),
         }}
       />
+
       <Tabs.Screen
-        name="vip"
+        name="temples"
         options={{
-          title: 'VIP',
+          title: 'Temples',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="star" color={color} size={size} />
+            <Ionicons name="business" color={color} size={size} />
           ),
         }}
       />

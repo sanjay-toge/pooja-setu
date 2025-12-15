@@ -14,31 +14,48 @@ type Booking = {
   status: 'pending' | 'confirmed' | 'completed' | 'cancelled'
 }
 
-type User = { name: string, phone?: string, email?: string, photo?: string, dob?: string, pob?: string }
+type User = {
+  name: string,
+  phone?: string,
+  email?: string,
+  photo?: string,
+  dob?: string,
+  pob?: string,
+  gender?: string,
+  gotra?: string,
+  rashi?: string,
+  nakshatra?: string,
+  isProfileComplete?: boolean
+}
 
 type State = {
   filters: { query?: string, city?: string, deity?: string, type?: string, date?: string, language?: string, maxPrice?: number }
   bookings: Booking[]
   poojas: any[]
   temples: any[]
+  gods: any[]
   isLoading: boolean
 
   setFilter: (k: keyof State['filters'], v: string | number | undefined) => void
   clearFilters: () => void
 
   fetchData: () => Promise<void>
+  fetchBookings: () => Promise<void>
   createBooking: (b: Omit<Booking, 'id' | 'status'>) => Promise<string>
   confirmBooking: (id: string) => void
 
   getPoojaById: (id: string) => any
   getTempleById: (id: string) => any
+  getGodById: (id: string) => any
 
   // Auth
   user: User | null
   isAuthenticated: boolean
   login: (method: 'google' | 'facebook' | 'phone', data?: any) => Promise<void>
+  googleLogin: (idToken: string) => Promise<any>
   logout: () => void
   updateUser: (data: Partial<User>) => void
+  completeProfile: (data: any) => Promise<void>
 
   // Theme
   themeMode: 'light' | 'dark'
@@ -50,6 +67,7 @@ export const useStore = create<State>((set, get) => ({
   bookings: [],
   poojas: [],
   temples: [],
+  gods: [],
   isLoading: false,
   user: null,
   isAuthenticated: false,
@@ -59,8 +77,18 @@ export const useStore = create<State>((set, get) => ({
 
   fetchData: async () => {
     set({ isLoading: true })
-    const [poojas, temples] = await Promise.all([api.fetchPoojas(), api.fetchTemples()])
-    set({ poojas, temples, isLoading: false })
+    const [poojas, temples, gods] = await Promise.all([api.fetchPoojas(), api.fetchTemples(), api.fetchGods()])
+    set({ poojas, temples, gods, isLoading: false })
+  },
+
+  fetchBookings: async () => {
+    try {
+      const bookings = await api.getMyBookings();
+      set({ bookings });
+    } catch (error) {
+      console.error('Failed to fetch bookings:', error);
+      set({ bookings: [] });
+    }
   },
 
   createBooking: async (b) => {
@@ -73,10 +101,17 @@ export const useStore = create<State>((set, get) => ({
 
   getPoojaById: (id) => get().poojas.find(p => p.id === id),
   getTempleById: (id) => get().temples.find(t => t.id === id),
+  getGodById: (id) => get().gods.find(g => g.id === id),
 
   login: async (method, data) => {
     const result = await api.login(method, data || {});
     set({ user: result.user, isAuthenticated: true });
+  },
+
+  googleLogin: async (idToken: string) => {
+    const result = await api.googleLogin(idToken);
+    set({ user: result.user, isAuthenticated: true });
+    return result.user;
   },
 
   logout: async () => {
@@ -85,6 +120,13 @@ export const useStore = create<State>((set, get) => ({
   },
 
   updateUser: (data) => set(s => ({ user: s.user ? { ...s.user, ...data } : null })),
+
+  completeProfile: async (data: any) => {
+    const result = await api.updateProfile(data);
+    set(s => ({
+      user: { ...s.user, ...result, isProfileComplete: true }
+    }));
+  },
 
   // Theme
   themeMode: 'dark',
