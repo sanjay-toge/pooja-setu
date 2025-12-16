@@ -6,3 +6,4 @@ dist/
 build/
 coverage/
 *.log
+backend/temp_dump
