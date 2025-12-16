@@ -1,6 +1,6 @@
-const API_BASE_URL = 'http://192.168.1.9:3000/api';
+// const API_BASE_URL = 'http://192.168.1.8:3000/api';
 // const API_BASE_URL = 'http://172.20.10.2:3000/api';
-// const API_BASE_URL = 'https://pooja-setu-api-cvfec3etbpfegmau.canadacentral-01.azurewebsites.net/api';
+const API_BASE_URL = 'https://pooja-setu-api-cvfec3etbpfegmau.canadacentral-01.azurewebsites.net/api';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -58,6 +58,18 @@ export const api = {
         return result;
     },
 
+    googleLogin: async (idToken: string) => {
+        const response = await fetch(`${API_BASE_URL}/auth/google`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ idToken })
+        });
+        if (!response.ok) throw new Error('Google Login failed');
+        const result = await response.json();
+        setAuthToken(result.token);
+        return result;
+    },
+
     getMe: async () => {
         const response = await fetch(`${API_BASE_URL}/auth/me`, {
             headers: getHeaders()
@@ -80,6 +92,12 @@ export const api = {
     fetchTemples: async () => {
         const response = await fetch(`${API_BASE_URL}/temples`);
         if (!response.ok) throw new Error('Failed to fetch temples');
+        return response.json();
+    },
+
+    fetchGods: async () => {
+        const response = await fetch(`${API_BASE_URL}/gods`);
+        if (!response.ok) throw new Error('Failed to fetch gods');
         return response.json();
     },
 
@@ -183,6 +201,55 @@ export const api = {
             body: JSON.stringify({ qrCodeData })
         });
         if (!response.ok) throw new Error('Failed to validate VIP pass');
+        return response.json();
+    },
+
+    // Payments
+    initiatePayment: async (bookingId: string) => {
+        const response = await fetch(`${API_BASE_URL}/payment/initiate`, {
+            method: 'POST',
+            headers: getHeaders(),
+            body: JSON.stringify({ bookingId })
+        });
+        if (!response.ok) throw new Error('Failed to initiate payment');
+        return response.json();
+    },
+
+    // Address Management
+    getAddresses: async () => {
+        const response = await fetch(`${API_BASE_URL}/users/address`, {
+            headers: getHeaders()
+        });
+        if (!response.ok) throw new Error('Failed to fetch addresses');
+        return response.json();
+    },
+
+    addAddress: async (address: any) => {
+        const response = await fetch(`${API_BASE_URL}/users/address`, {
+            method: 'POST',
+            headers: getHeaders(),
+            body: JSON.stringify(address)
+        });
+        if (!response.ok) throw new Error('Failed to add address');
+        return response.json();
+    },
+
+    updateAddress: async (id: string, address: any) => {
+        const response = await fetch(`${API_BASE_URL}/users/address/${id}`, {
+            method: 'PUT',
+            headers: getHeaders(),
+            body: JSON.stringify(address)
+        });
+        if (!response.ok) throw new Error('Failed to update address');
+        return response.json();
+    },
+
+    deleteAddress: async (id: string) => {
+        const response = await fetch(`${API_BASE_URL}/users/address/${id}`, {
+            method: 'DELETE',
+            headers: getHeaders()
+        });
+        if (!response.ok) throw new Error('Failed to delete address');
         return response.json();
     }
 };

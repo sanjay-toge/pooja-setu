@@ -255,7 +255,7 @@ export default function TempleDetail() {
           </View>
         )}
 
-        {/* VIP Pass Section */}
+        {/* VIP Pass Section
         {temple.vipPricing?.enabled && (
           <View style={styles.vipSection}>
             <View style={styles.vipHeader}>
@@ -280,6 +280,74 @@ export default function TempleDetail() {
               <Ionicons name="ticket" size={20} color="#fff" />
               <Text style={styles.vipButtonText}>Get VIP Pass</Text>
             </Pressable>
+          </View>
+        )} */}
+
+        {/* Blogs Section */}
+        {temple.blogs && temple.blogs.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>📝 Temple Blogs & Articles</Text>
+            {temple.blogs.slice(0, 2).map((blog: any, index: number) => (
+              <View key={index} style={styles.blogCard}>
+                {blog.imageUrl && (
+                  <Image source={{ uri: blog.imageUrl }} style={styles.blogImage} />
+                )}
+                <View style={styles.blogContent}>
+                  <Text style={styles.blogTitle}>{blog.title}</Text>
+                  <Text style={styles.blogExcerpt} numberOfLines={2}>
+                    {blog.excerpt}
+                  </Text>
+                  <View style={styles.blogMeta}>
+                    <Text style={styles.blogAuthor}>By {blog.author}</Text>
+                  </View>
+                </View>
+              </View>
+            ))}
+          </View>
+        )}
+
+        {/* Image Gallery */}
+        {temple.gallery && temple.gallery.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>📸 Photo Gallery</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.gallery}>
+              {temple.gallery.map((item: any, index: number) => (
+                <View key={index} style={styles.galleryItem}>
+                  <Image source={{ uri: item.url }} style={styles.galleryImage} />
+                  {item.caption && (
+                    <Text style={styles.galleryCaption} numberOfLines={1}>
+                      {item.caption}
+                    </Text>
+                  )}
+                </View>
+              ))}
+            </ScrollView>
+          </View>
+        )}
+
+        {/* Teachings Section */}
+        {temple.teachings && temple.teachings.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>🕉️ Teachings & Mantras</Text>
+            {temple.teachings.map((teaching: any, index: number) => (
+              <View key={index} style={styles.teachingCard}>
+                <View style={styles.teachingHeader}>
+                  <Text style={styles.teachingTitle}>{teaching.title}</Text>
+                  <View style={[
+                    styles.categoryBadge,
+                    {
+                      backgroundColor:
+                        teaching.category === 'mantra' ? '#FF6B6B' :
+                          teaching.category === 'story' ? '#4ECDC4' :
+                            teaching.category === 'philosophy' ? '#95E1D3' : '#F3A683'
+                    }
+                  ]}>
+                    <Text style={styles.categoryText}>{teaching.category}</Text>
+                  </View>
+                </View>
+                <Text style={styles.teachingContent}>{teaching.content}</Text>
+              </View>
+            ))}
           </View>
         )}
 
@@ -851,5 +919,99 @@ const getStyles = (theme: any) =>
       color: '#fff',
       fontSize: 16,
       fontWeight: '700',
+    },
+    // Blog styles
+    blogCard: {
+      backgroundColor: theme.colors.card,
+      borderRadius: 12,
+      marginBottom: 12,
+      overflow: 'hidden',
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+    },
+    blogImage: {
+      width: '100%',
+      height: 160,
+      resizeMode: 'cover',
+    },
+    blogContent: {
+      padding: 14,
+    },
+    blogTitle: {
+      fontSize: 16,
+      fontWeight: '700',
+      color: theme.colors.text,
+      marginBottom: 6,
+    },
+    blogExcerpt: {
+      fontSize: 13,
+      color: theme.colors.muted,
+      lineHeight: 20,
+      marginBottom: 8,
+    },
+    blogMeta: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    blogAuthor: {
+      fontSize: 12,
+      color: theme.colors.muted,
+      fontStyle: 'italic',
+    },
+    // Gallery styles
+    gallery: {
+      marginTop: 8,
+    },
+    galleryItem: {
+      marginRight: 12,
+    },
+    galleryImage: {
+      width: 200,
+      height: 150,
+      borderRadius: 12,
+      resizeMode: 'cover',
+    },
+    galleryCaption: {
+      fontSize: 12,
+      color: theme.colors.muted,
+      marginTop: 6,
+      width: 200,
+    },
+    // Teachings styles
+    teachingCard: {
+      backgroundColor: theme.colors.card,
+      padding: 14,
+      borderRadius: 12,
+      marginBottom: 12,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+    },
+    teachingHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 10,
+    },
+    teachingTitle: {
+      fontSize: 15,
+      fontWeight: '700',
+      color: theme.colors.text,
+      flex: 1,
+    },
+    categoryBadge: {
+      paddingHorizontal: 10,
+      paddingVertical: 4,
+      borderRadius: 12,
+    },
+    categoryText: {
+      color: '#fff',
+      fontSize: 11,
+      fontWeight: '600',
+      textTransform: 'capitalize',
+    },
+    teachingContent: {
+      fontSize: 14,
+      color: theme.colors.text,
+      lineHeight: 22,
     },
   });

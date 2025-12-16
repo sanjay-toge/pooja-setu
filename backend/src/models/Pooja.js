@@ -6,6 +6,8 @@ const poojaSchema = new mongoose.Schema({
     templeId: { type: String, required: true },
     basePriceINR: { type: Number, required: true },
     durationMinutes: { type: Number, required: true },
+    imageUrl: { type: String },
+    participantCount: { type: Number, default: 4 },
     type: String,
     description: { type: String, default: '' },
     includedInTicket: [{ type: String }],

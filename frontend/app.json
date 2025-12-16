@@ -2,6 +2,7 @@
   "expo": {
     "name": "PoojaSetu",
     "slug": "poojasetu",
+    "version": "1.0.1",
     "scheme": "poojasetu",
     "orientation": "portrait",
     "plugins": [
@@ -20,7 +21,8 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
       },
-      "package": "com.sanjay.toge.poojasetu"
+      "package": "com.sanjay.toge.poojasetu",
+      "versionCode": 11
     },
     "web": {
       "bundler": "metro"

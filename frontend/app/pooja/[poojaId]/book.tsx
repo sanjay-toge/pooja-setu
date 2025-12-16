@@ -6,7 +6,20 @@ import Button from '../../../src/components/Button'
 import dayjs from 'dayjs'
 import { useStore } from '../../../src/store'
 import { Calendar } from 'react-native-calendars'
+import { api } from '../../../src/api/api'
 import { Ionicons } from '@expo/vector-icons'
+import { AddressManager } from '../../../src/components/AddressManager'
+
+interface Address {
+  _id?: string;
+  label: string;
+  line1: string;
+  line2?: string;
+  city: string;
+  state: string;
+  pincode: string;
+  isDefault: boolean;
+}
 
 export default function Book() {
   const { poojaId } = useLocalSearchParams()
@@ -20,6 +33,8 @@ export default function Book() {
   const [nakshatra, setNakshatra] = useState('')
   const [intentions, setIntentions] = useState('')
   const [selectedAddons, setSelectedAddons] = useState<string[]>([])
+  const [serviceMode, setServiceMode] = useState<'online' | 'offline'>('offline')
+  const [selectedAddress, setSelectedAddress] = useState<Address | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const pooja = poojas.find((x) => x.id === poojaId)
@@ -78,22 +93,64 @@ export default function Book() {
       return
     }
 
+    if (serviceMode === 'offline' && !selectedAddress) {
+      Alert.alert('Address Required', 'Please select an address for offline pooja.')
+      return
+    }
+
     try {
       setIsSubmitting(true)
-      const bookingId = await createBooking({
+      const bookingData: any = {
         poojaId: pooja.id,
         templeId: pooja.templeId,
         date: selectedDate,
         slotId: selectedSlot,
         addOnIds: selectedAddons,
         amountINR: totalAmount,
+        serviceMode,
         inputs: {
           gotra: gotra || undefined,
           nakshatra: nakshatra || undefined,
           intentions: intentions || undefined,
         },
-      })
-      router.replace(`/payment-success/${bookingId}`)
+      }
+
+      if (serviceMode === 'offline' && selectedAddress) {
+        bookingData.deliveryAddress = {
+          line1: selectedAddress.line1,
+          city: selectedAddress.city,
+          state: selectedAddress.state,
+          pincode: selectedAddress.pincode
+        }
+      }
+
+      const bookingId = await createBooking(bookingData)
+
+      try {
+        // Initiate Payment
+        const { paymentUrl } = await api.initiatePayment(bookingId)
+        if (paymentUrl) {
+          // Use Linking to open URL (works on Web and Mobile)
+          // For mobile, maybe use WebBrowser for better UX
+          // import * as WebBrowser from 'expo-web-browser'; // Add import if not present
+          // await WebBrowser.openBrowserAsync(paymentUrl);
+
+          // For now, using Linking as it's simpler
+          const { Linking } = require('react-native')
+          await Linking.openURL(paymentUrl)
+
+          // Could redirect to a 'Processing' page here, or handle via callback deep link
+          // For now, let's keep it simple
+        } else {
+          Alert.alert('Payment Error', 'Could not initiate payment.')
+        }
+
+      } catch (payError) {
+        console.error('Payment Init Error:', payError)
+        Alert.alert('Payment Error', 'Booking created but payment initiation failed. Please check My Bookings.')
+        router.replace('/(tabs)/bookings')
+      }
+
     } catch (error) {
       console.error('Booking error:', error)
       Alert.alert('Booking Failed', 'Unable to create booking. Please try again.')
@@ -116,9 +173,44 @@ export default function Book() {
         </View>
       </View>
 
+      {/* Service Mode Selection */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>1. Service Mode</Text>
+        <View style={styles.card}>
+          <View style={styles.modeRow}>
+            <Text style={styles.modeLabel}>Pooja Mode</Text>
+            <View style={styles.modeToggle}>
+              <Text style={[styles.modeText, serviceMode === 'offline' && styles.modeTextActive]}>Offline (At Home)</Text>
+              <Switch
+                value={serviceMode === 'online'}
+                onValueChange={(val) => setServiceMode(val ? 'online' : 'offline')}
+                trackColor={{ false: theme.colors.primary, true: theme.colors.primary }}
+                thumbColor={'#fff'}
+              />
+              <Text style={[styles.modeText, serviceMode === 'online' && styles.modeTextActive]}>Online</Text>
+            </View>
+          </View>
+          <Text style={styles.modeDescription}>
+            {serviceMode === 'offline'
+              ? "We will send a Pandit to your address to perform the Pooja."
+              : "Pooja will be performed at the temple and streamed live to you."}
+          </Text>
+
+          {serviceMode === 'offline' && (
+            <View style={{ marginTop: 16 }}>
+              <Text style={[styles.label, { marginBottom: 8 }]}>Select Address for Pandit Visit</Text>
+              <AddressManager
+                selectedAddress={selectedAddress}
+                onSelectAddress={setSelectedAddress}
+              />
+            </View>
+          )}
+        </View>
+      </View>
+
       {/* Date Selection */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>1. Select Date</Text>
+        <Text style={styles.sectionTitle}>2. Select Date</Text>
         <View style={styles.calendarContainer}>
           <Calendar
             current={selectedDate}
@@ -150,7 +242,7 @@ export default function Book() {
 
       {/* Slot Selection */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>2. Select Time Slot</Text>
+        <Text style={styles.sectionTitle}>3. Select Time Slot</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.slotsContainer}>
           {slots.map((slot) => (
             <Pressable
@@ -172,7 +264,7 @@ export default function Book() {
 
       {/* Devotee Details */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>3. Devotee Details</Text>
+        <Text style={styles.sectionTitle}>4. Devotee Details</Text>
         <View style={styles.card}>
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Gotra (Optional)</Text>
@@ -212,7 +304,7 @@ export default function Book() {
       {/* Add-ons */}
       {pooja.addOns && pooja.addOns.length > 0 && (
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>4. Add-ons</Text>
+          <Text style={styles.sectionTitle}>5. Add-ons</Text>
           <View style={styles.card}>
             {pooja.addOns.map((addon: any) => (
               <View key={addon.id} style={styles.addonRow}>
@@ -314,6 +406,35 @@ const getStyles = (theme: any) => StyleSheet.create({
     color: theme.colors.primary,
     fontWeight: '700',
     fontSize: 16,
+  },
+  modeRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  modeLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: theme.colors.text,
+  },
+  modeToggle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  modeText: {
+    fontSize: 14,
+    color: theme.colors.muted,
+  },
+  modeTextActive: {
+    color: theme.colors.primary,
+    fontWeight: '600',
+  },
+  modeDescription: {
+    fontSize: 13,
+    color: theme.colors.muted,
+    marginBottom: 8,
   },
   section: {
     padding: 20,

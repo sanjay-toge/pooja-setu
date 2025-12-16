@@ -4,13 +4,56 @@ import { useRouter } from 'expo-router'
 import { Ionicons, FontAwesome5 } from '@expo/vector-icons'
 import { useTheme } from '../src/theme'
 import { useStore } from '../src/store'
+import * as WebBrowser from 'expo-web-browser';
+import * as Google from 'expo-auth-session/providers/google';
+
+WebBrowser.maybeCompleteAuthSession();
 
 export default function LoginScreen() {
     const router = useRouter()
     const theme = useTheme()
     const login = useStore((state: any) => state.login)
+    const googleLogin = useStore((state: any) => state.googleLogin)
     const [phone, setPhone] = useState('')
     const [loading, setLoading] = useState(false)
+
+    // Google Auth Request
+    const [request, response, promptAsync] = Google.useAuthRequest({
+        iosClientId: '792026226863-k34pt3t0gq5kgbtbnlhldl77j36a8teg.apps.googleusercontent.com',
+        androidClientId: 'YOUR_ANDROID_CLIENT_ID',
+        webClientId: '792026226863-87onfka2382imst8b5221ed36tfv1j0m.apps.googleusercontent.com',
+        redirectUri: 'https://auth.expo.io/@sanjaytoge/poojasetu'
+    });
+
+    React.useEffect(() => {
+        if (request) {
+            console.log('Current Redirect URI:', request.redirectUri);
+        }
+    }, [request]);
+
+    React.useEffect(() => {
+        if (response?.type === 'success') {
+            const { id_token } = response.params;
+            handleGoogleSignIn(id_token);
+        }
+    }, [response]);
+
+    const handleGoogleSignIn = async (token: string) => {
+        setLoading(true);
+        try {
+            const user = await googleLogin(token);
+            if (!user.isProfileComplete) {
+                router.replace('/onboarding');
+            } else {
+                router.replace('/(tabs)');
+            }
+        } catch (error) {
+            Alert.alert('Google Login Failed', 'Please try again.');
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handleLogin = async (method: 'google' | 'facebook' | 'phone') => {
         if (method === 'phone' && phone.length < 10) {
@@ -21,7 +64,13 @@ export default function LoginScreen() {
         setLoading(true)
         try {
             await login(method, { phone: `+91${phone}`, name: 'User' })
-            router.replace('/(tabs)')
+            // Check if profile is complete (for phone login too)
+            const user = useStore.getState().user;
+            if (user && !user.isProfileComplete) {
+                router.replace('/onboarding');
+            } else {
+                router.replace('/(tabs)');
+            }
         } catch (error) {
             Alert.alert('Login Failed', 'Unable to login. Please try again.')
             console.error('Login error:', error)
@@ -75,7 +124,11 @@ export default function LoginScreen() {
                 </View>
 
                 {/* Social Login */}
-                <TouchableOpacity style={styles.socialButton} onPress={() => handleLogin('google')}>
+                <TouchableOpacity
+                    style={[styles.socialButton, { opacity: !request ? 0.5 : 1 }]}
+                    onPress={() => promptAsync()}
+                    disabled={!request}
+                >
                     <Ionicons name="logo-google" size={24} color="#DB4437" />
                     <Text style={styles.socialButtonText}>Continue with Google</Text>
                 </TouchableOpacity>

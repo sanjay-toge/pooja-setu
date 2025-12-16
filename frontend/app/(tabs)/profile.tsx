@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons'
 import { useRouter } from 'expo-router'
 import { useTheme } from '../../src/theme'
 import { useStore } from '../../src/store'
+import { AddressManager } from '../../src/components/AddressManager'
 
 export default function ProfileScreen() {
     const router = useRouter()
@@ -116,6 +117,14 @@ export default function ProfileScreen() {
                 )}
             </View>
 
+            {/* My Addresses */}
+            <View style={styles.section}>
+                <Text style={styles.sectionTitle}>My Addresses</Text>
+                <AddressManager
+                    onSelectAddress={() => { }} // No-op for management view
+                />
+            </View>
+
             {/* Menu Items */}
             <View style={styles.menu}>
                 <View style={styles.menuItem}>
@@ -145,7 +154,7 @@ export default function ProfileScreen() {
             </View>
 
             <Text style={styles.version}>Version 1.0.0</Text>
-        </ScrollView>
+        </ScrollView >
     )
 }
 
@@ -298,5 +307,15 @@ const getStyles = (theme: any) => StyleSheet.create({
         textAlign: 'center',
         color: theme.colors.muted,
         marginBottom: 30,
+    },
+    section: {
+        paddingHorizontal: 20,
+        marginBottom: 20,
+    },
+    sectionTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: theme.colors.text,
+        marginBottom: 10,
     },
 })
